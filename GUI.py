@@ -46,10 +46,16 @@ class ObservationWindow(tk.Toplevel):
             self.initial_lable = tk.Label(self, text=f"실험: {days}일, 단계: {step}시간", font=("Arial", 12))
             self.initial_lable.grid(row = 0, column= 0, pady = 10)
 
-            self.time_info_lable = tk.Label(self, text = "day",font=("Arial", 10), fg="gray")
-            self.time_info_lable.grid(row = 1, sticky="w", padx=10)
+            self.day_info_lable = tk.Label(self, text = "day",font=("Arial", 10), fg="gray")
+            self.day_info_lable.grid(row = 1, column= 0, sticky="w", padx=10)
+            self.day_info = tk.Text(self, height=1, width=5)
+            self.day_info.grid(row = 2, column= 0, padx= 5, pady= 10)
+            
+            self.time_info_lable = tk.Label(self, text = "time",font=("Arial", 10), fg="gray")
+            self.time_info_lable.grid(row = 1, column= 1, sticky="w", padx=10)
             self.time_info = tk.Text(self, height=1, width=5)
-            self.time_info.grid(row = 2, column= 0, padx= 5, pady= 10)
+            self.time_info.grid(row = 2, column= 1, padx= 5, pady= 10)
+
             
             self.stats_label = tk.Label(self, text = "Stats",font=("Arial", 10), fg="gray")
             self.stats_label.grid(row = 3, column= 0, sticky="w", padx=10)
@@ -79,10 +85,15 @@ class ObservationWindow(tk.Toplevel):
     
     def next_stage(self):
         # 다음 단계 버튼 클릭 시 시뮬레이션 실행 후 통계 업데이트
-        request = self.experiment.step()
+        request, day, time = self.experiment.step()
+        self.request_flow.delete(1.0, tk.END)
+        self.request_flow.insert(tk.END, request.get_request_info())
+
+        self.day_info.delete(1.0, tk.END)
+        self.day_info.insert(tk.END, day)
+        self.time_info.delete(1.0, tk.END)
+        self.time_info.insert(tk.END, time)
+
         stats = self.experiment.displayStatistics()
         self.stats_text.delete(1.0, tk.END)
         self.stats_text.insert(tk.END, stats)
-        
-        self.request_flow.delete(1.0, tk.END)
-        self.request_flow.insert(tk.END, request.get_request_info())

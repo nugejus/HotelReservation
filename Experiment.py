@@ -38,20 +38,7 @@ class Experiment:
             self.current_hour -= 24
         self.computeStatistics()
 
-        return request
-
-    def run(self):
-        while self.current_day < self.days:
-            req = self.generateRequest()
-            self.bookingRequests += 1
-            success = self.hotel.processRequest(req)
-            if success:
-                self.executedRequests += 1
-            self.current_hour += self.hour_per_step
-            if self.current_hour >= 24:
-                self.current_day += 1
-                self.current_hour -= 24
-        self.computeStatistics()
+        return request, self.current_day, self.current_hour
 
     def computeStatistics(self):
         # 각 객실 유형별 점유율 계산
