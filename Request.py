@@ -1,11 +1,13 @@
 class Request:
     def __init__(self, roomType, checkInDate, checkOutDate):
-        self.desiredRoomType = roomType
+        self.roomType = roomType
         self.checkInDate = checkInDate
         self.checkOutDate = checkOutDate
-
-    def validate(self):
-        return self.checkInDate < self.checkOutDate
+    
+    def display_request_info(self):
+        return  f"Room Type : {self.roomType} \n" + \
+                f"Check in date : day {self.checkInDate} \n" + \
+                f"Check out date : day {self.checkOutDate}"
     
     def get_request_info(self):
-        return f"Room Type : {self.desiredRoomType} \nCheck in date : day {self.checkInDate} \nCheck out date : day {self.checkOutDate}"
+        return self.roomType, self.checkInDate, self.checkOutDate
