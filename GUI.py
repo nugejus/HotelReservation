@@ -161,15 +161,18 @@ class ObservationWindow(tk.Toplevel):
     def next_stage(self):
         # 다음 단계 버튼 클릭 시 시뮬레이션 실행 후 통계 업데이트
         request, request_result, day, time = self.experiment.step()
-
+        
         self.flow_info.delete(1.0, tk.END)
-        self.flow_info.insert(tk.END, request.display_request_info())
+        if request:    
+            self.flow_info.insert(tk.END, request.display_request_info())
+        else:
+            self.flow_info.insert(tk.END, "Nobody wants to stay in Our Hotel....")
 
         self.request_result.delete(1.0, tk.END)
         if request_result:
             self.request_result.insert(tk.END, request_result.displayRoomInfo())
         else:
-            self.request_result.insert(tk.END, "Could not check in. There are no free room")
+            self.request_result.insert(tk.END, "Could not check in")
         self.time_today.delete(1.0, tk.END)
         self.time_today.insert(tk.END, day)
 

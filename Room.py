@@ -15,36 +15,31 @@ class Room:
             RoomType.SIMPLE_DOUBLE: "Две кровати",
             RoomType.DOUBLE_WITH_SOFA: "Две кровати с диваном"
     }
-    def __init__(self, id, room_type):
+    def __init__(self, id, room_type, days):
         self.id = id
         self.type = room_type
         self.price = Room.prices[room_type]
-        self.checkInDate = None
-        self.checkOutDate = None
 
-    def isAvailable(self, checkInDate):
-        return self.isFree() or checkInDate > self.checkInDate
+        self.occupancyDuration = [False] * days
+
+    def isAvailable(self, checkInDate, checkOutDate):
+        return not any(self.occupancyDuration[checkInDate:checkOutDate])
     
     def checkIn(self, checkInDate, checkOutDate):
-        self.checkInDate = checkInDate
-        self.checkOutDate = checkOutDate
+        for i in range(checkInDate, checkOutDate):
+            self.occupancyDuration[i] = True
         return self
 
-    def checkOut(self):
-        pass
-
-    def get_price(self):
-        return self.price * (self.checkOutDate - self.checkInDate)
+    def get_price(self, checkInDate, checkOutDate):
+        return self.price * (checkOutDate - checkInDate)
     
     def displayRoomInfo(self):
         return  f"RoomId : {self.id} \n" + \
                 f"RoomType : {Room.names_to_display[self.type]} \n" + \
-                f"Price : {self.price} \n" + \
-                f"CheckInDate : {self.checkInDate} \n" + \
-                f"CheckOutDate : {self.checkOutDate}"
+                f"Price : {self.price} \n"
     
     def get_type(self):
         return self.type
 
-    def isFree(self):
-        return self.checkInDate is None and self.checkOutDate is None
+    def isFree(self, today):
+        return not self.occupancyDuration[today]
