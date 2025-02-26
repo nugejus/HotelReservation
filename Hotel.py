@@ -15,6 +15,9 @@ class Hotel:
             if room.get_type() == roomType and room.isAvailable(checkInDate, checkOutDate):
                 return room
         # 대체 객실 제공 로직은 필요시 추가
+        for room in self.rooms:
+            if room.get_type() > roomType and room.isAvailable(checkInDate, checkOutDate):
+                return room
         return None
 
     def processRequest(self, req):

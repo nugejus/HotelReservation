@@ -7,7 +7,7 @@ from RoomType import RoomType
 class InitWindow(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("실험 초기화")
+        self.title("Initialize Experiment")
         self.geometry("430x250")
         
         tk.Label(self, text="Days for experiments:").grid(row=0, column=0, padx=10, pady=10, sticky="w")
@@ -38,7 +38,7 @@ class InitWindow(tk.Tk):
         self.half_lux.grid(row = 4, column=3, sticky="w")
         self.lux.grid(row = 5, column = 1, sticky="w")
         
-        self.start_button = tk.Button(self, text="실험 시작", command=self.start_experiment)
+        self.start_button = tk.Button(self, text="Start", command=self.start_experiment)
         self.start_button.grid(row=5, column=2, columnspan=2, pady=10)
         
     def start_experiment(self):
@@ -52,12 +52,12 @@ class InitWindow(tk.Tk):
         step = self.entry_step.get()
         
         if not days.isdigit() or not step.isdigit():
-            messagebox.showerror("오류", "정수 값을 입력해 주세요.")
+            messagebox.showerror("Error", "Required INTEGER value.")
             return
 
         for key,value in rooms.items():
             if not value.isdigit():
-                messagebox.showerror("오류", "정수 값을 입력해 주세요.")
+                messagebox.showerror("Error", "Required INTEGER value.")
                 return
             else:
                 rooms[key] = int(value)
@@ -75,7 +75,7 @@ class ObservationWindow(tk.Toplevel):
         self.parent = parent
         self.days = days
         self.step = step
-        self.title("실험 관찰")
+        self.title("Experiment Observation")
         self.geometry("724x500")
 
         try:
@@ -108,9 +108,9 @@ class ObservationWindow(tk.Toplevel):
             # ---- Statistics ----
             tk.Label(left_frame, text="Statistics", font=("Arial", 10, "underline")).grid(row = 3, pady=5)
 
-            tk.Label(left_frame, text="Средний загруз:").grid(row=4, column=0, pady = 2)
-            tk.Label(left_frame, text="Доход:").grid(row=5, column=0, pady = 2)
-            tk.Label(left_frame, text="Процент успешных заявок:").grid(row=6, column=0, pady = 2)
+            tk.Label(left_frame, text="Mean occupancy today:").grid(row=4, column=0, pady = 2)
+            tk.Label(left_frame, text="Profit:").grid(row=5, column=0, pady = 2)
+            tk.Label(left_frame, text="Successful request percentage:").grid(row=6, column=0, pady = 2)
 
             self.avg_occupancy = tk.Text(left_frame, height=1, width=5)
             self.avg_occupancy.grid(row=4, column=1, pady = 2)
@@ -126,13 +126,13 @@ class ObservationWindow(tk.Toplevel):
             right_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
 
             # ---- Поток заявок ----
-            tk.Label(right_frame, text="Поток заявок", font=("Arial", 10, "underline")).pack(pady=5)
+            tk.Label(right_frame, text="Request Flow", font=("Arial", 10, "underline")).pack(pady=5)
 
             self.flow_info = tk.Text(right_frame, height=10, width=40)
             self.flow_info.pack(pady=5)
 
             # ---- Результат обработки заявок ----
-            result_label = tk.Label(right_frame, text="Результат обработки заявок", font=("Arial", 10, "underline"))
+            result_label = tk.Label(right_frame, text="Request processing result", font=("Arial", 10, "underline"))
             result_label.pack(pady=5)
 
             self.request_result = tk.Text(right_frame, height=10, width=40)
@@ -145,7 +145,7 @@ class ObservationWindow(tk.Toplevel):
             self.btn_start = tk.Button(bottom_frame, text="Next step", command=self.next_stage)
             self.btn_start.pack(side=tk.LEFT, padx=5)
 
-            self.btn_exit = tk.Button(bottom_frame, text="Выход", command=self.terminate_experiment)
+            self.btn_exit = tk.Button(bottom_frame, text="Exit", command=self.terminate_experiment)
             self.btn_exit.pack(side=tk.RIGHT, padx=5)
 
             self.experiment = Experiment(days, step, rooms)
@@ -154,7 +154,7 @@ class ObservationWindow(tk.Toplevel):
             self.terminate_experiment()
     
     def terminate_experiment(self):
-        messagebox.showinfo("실험 종료", "실험이 종료되었습니다.")
+        messagebox.showinfo("Termination", "The Experiment has been terminated.")
         self.destroy()
         self.parent.destroy()
     
@@ -173,6 +173,7 @@ class ObservationWindow(tk.Toplevel):
             self.request_result.insert(tk.END, request_result.displayRoomInfo())
         else:
             self.request_result.insert(tk.END, "Could not check in")
+            
         self.time_today.delete(1.0, tk.END)
         self.time_today.insert(tk.END, day)
 

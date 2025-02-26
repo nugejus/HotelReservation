@@ -53,6 +53,10 @@ class Experiment:
             self.current_day += 1
             self.current_hour -= 24
 
+        for room in self.hotel.rooms:
+            print(room.type, room.occupancyDuration)
+        print()
+
         return self.request, request_result, self.current_day, self.current_hour
 
     def updateStatistics(self, request_result):
@@ -63,7 +67,7 @@ class Experiment:
         if request_result:
             self.succesed_requests += 1
             self.profit += request_result.get_price(checkInDate, checkOutDate)
-            
+
         self.success_rate = (self.succesed_requests / self.total_requests) * 100
         self.avg_occupancy = (self.hotel.get_current_occupancy(self.current_day) / self.total_occupancy) * 100
         
