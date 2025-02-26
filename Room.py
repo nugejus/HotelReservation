@@ -8,6 +8,13 @@ class Room:
             RoomType.SIMPLE_DOUBLE: 80,
             RoomType.DOUBLE_WITH_SOFA: 90
         }
+    names_to_display = {
+            RoomType.LUX: "Люкс",
+            RoomType.HALF_LUX: "Полу-Люкс",
+            RoomType.SINGLE: "Одна кровать",
+            RoomType.SIMPLE_DOUBLE: "Две кровати",
+            RoomType.DOUBLE_WITH_SOFA: "Две кровати с диваном"
+    }
     def __init__(self, id, room_type):
         self.id = id
         self.type = room_type
@@ -31,7 +38,7 @@ class Room:
     
     def displayRoomInfo(self):
         return  f"RoomId : {self.id} \n" + \
-                f"RoomType : {self.type} \n" + \
+                f"RoomType : {Room.names_to_display[self.type]} \n" + \
                 f"Price : {self.price} \n" + \
                 f"CheckInDate : {self.checkInDate} \n" + \
                 f"CheckOutDate : {self.checkOutDate}"

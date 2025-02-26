@@ -76,7 +76,7 @@ class ObservationWindow(tk.Toplevel):
         self.days = days
         self.step = step
         self.title("실험 관찰")
-        self.geometry("724x450")
+        self.geometry("724x500")
 
         try:
             # ========== 상단 레이블(총 기간/단계 표시) ==========

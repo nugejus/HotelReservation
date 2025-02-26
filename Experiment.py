@@ -5,21 +5,18 @@ from Request import Request
 
 class Experiment:
     def __init__(self, days, hour_per_step, rooms_info):
-        self.days = days          # 전체 시뮬레이션 기간 (일)
+        self.days = days            # 전체 시뮬레이션 기간 (일)
         self.hour_per_step = hour_per_step          # 시뮬레이션 단계 (시간 단위)
         self.hotel = Hotel(rooms_info)
         self.parameters = {}
 
         # 통계 관련 속성
-        self.occupancyRates = {}  # 각 객실 유형별 점유율
-        self.success_rate = 0 # 성공적으로 처리된 요청 수
-
         self.total_requests = 0  # 전체 요청 수
+        self.total_occupancy = self.hotel.get_room_numbers() # 총 방의 갯수
         self.succesed_requests = 0 # 성공한 요청 수
 
-        self.total_occupancy = self.hotel.get_room_numbers() # 총 방의 갯수
         self.avg_occupancy = 0 # 점유중인 방의갯수
-
+        self.success_rate = 0 # 성공적으로 처리된 요청 수
         self.profit = 0
 
         self.current_day = 0
@@ -55,7 +52,7 @@ class Experiment:
             self.success_rate = (self.succesed_requests / self.total_requests) * 100
             self.profit += request_result.get_price()
         
-        self.avg_occupancy = self.hotel.get_current_occupancy() / self.total_occupancy
+        self.avg_occupancy = (self.hotel.get_current_occupancy() / self.total_occupancy) * 100
         
     def getStatistics(self):
         return {"avg_occupancy" : self.avg_occupancy,
