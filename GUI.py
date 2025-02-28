@@ -2,9 +2,15 @@ import tkinter as tk
 from tkinter import messagebox
 from Experiment import Experiment
 from RoomType import RoomType
+from abc import abstractmethod
+
+class GUI(tk.Tk):
+    @abstractmethod
+    def terminate(self):
+        pass
 
 # (1) 실험 초기화 창: days, step 입력
-class InitWindow(tk.Tk):
+class InitWindow(GUI):
     def __init__(self):
         super().__init__()
         self.title("Initialize Experiment")
@@ -39,7 +45,10 @@ class InitWindow(tk.Tk):
         self.lux.grid(row = 5, column = 1, sticky="w")
         
         self.start_button = tk.Button(self, text="Start", command=self.start_experiment)
-        self.start_button.grid(row=5, column=2, columnspan=2, pady=10)
+        self.start_button.grid(row=5, column=2, columnspan=2, pady=10, sticky="w")
+
+        self.exit_button = tk.Button(self, text = "Exit", command = self.terminate)
+        self.exit_button.grid(row = 5, column=3, columnspan=2, pady=10)
         
     def start_experiment(self):
         rooms = {RoomType.SINGLE : self.single.get(), 
@@ -67,9 +76,12 @@ class InitWindow(tk.Tk):
         self.withdraw()  # 초기화 창 숨김
         obs_win = ObservationWindow(self, days, step, rooms)
         obs_win.mainloop()
+    
+    def terminate(self):
+        self.destroy()
 
 # (2) 실험 관찰 창: 실험 상태 및 통계 표시, 실험 종료 및 다음 단계 버튼 제공
-class ObservationWindow(tk.Toplevel):
+class ObservationWindow(tk.Toplevel, GUI):
     def __init__(self, parent, days, step, rooms):
         super().__init__(parent)
         self.parent = parent
@@ -145,15 +157,15 @@ class ObservationWindow(tk.Toplevel):
             self.btn_start = tk.Button(bottom_frame, text="Next step", command=self.next_stage)
             self.btn_start.pack(side=tk.LEFT, padx=5)
 
-            self.btn_exit = tk.Button(bottom_frame, text="Exit", command=self.terminate_experiment)
+            self.btn_exit = tk.Button(bottom_frame, text="Exit", command=self.terminate)
             self.btn_exit.pack(side=tk.RIGHT, padx=5)
 
             self.experiment = Experiment(days, step, rooms)
 
         except:
-            self.terminate_experiment()
+            self.terminate()
     
-    def terminate_experiment(self):
+    def terminate(self):
         messagebox.showinfo("Termination", "The Experiment has been terminated.")
         self.destroy()
         self.parent.destroy()
@@ -180,7 +192,7 @@ class ObservationWindow(tk.Toplevel):
         self.time_now.delete(1.0, tk.END)
         self.time_now.insert(tk.END, time)
 
-        statistics = self.experiment.getStatistics()
+        statistics = self.experiment.displayStatistics()
 
         self.avg_occupancy.delete(1.0, tk.END)
         self.profit.delete(1.0, tk.END)

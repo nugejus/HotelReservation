@@ -53,9 +53,11 @@ class Experiment:
             self.current_day += 1
             self.current_hour -= 24
 
+        # Debugging code
         for room in self.hotel.rooms:
             print(room.type, room.occupancyDuration)
         print()
+        # Debugging code
 
         return self.request, request_result, self.current_day, self.current_hour
 
@@ -71,7 +73,7 @@ class Experiment:
         self.success_rate = (self.succesed_requests / self.total_requests) * 100
         self.avg_occupancy = (self.hotel.get_current_occupancy(self.current_day) / self.total_occupancy) * 100
         
-    def getStatistics(self):
+    def displayStatistics(self):
         return {"avg_occupancy" : self.avg_occupancy,
                 "profit" : self.profit,
                 "success_rate" : self.success_rate}
