@@ -6,6 +6,7 @@ class RoomType(Enum):
     DOUBLE_WITH_SOFA = 3
     HALF_LUX = 4
     LUX = 5
+    NOT_A_ROOM = 6
 
     def __lt__(self, other):
         if self.__class__ is other.__class__:

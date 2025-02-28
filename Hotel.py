@@ -1,4 +1,5 @@
 from Room import Room
+from RoomType import RoomType
 
 class Hotel:
     def __init__(self, rooms_info, days):
@@ -26,7 +27,7 @@ class Hotel:
         if room:
             return room.checkIn(checkInDate, checkOutDate)
         else:
-            return None
+            return Room(-1, RoomType.NOT_A_ROOM, -1)
         
     def get_room_numbers(self):
         return len(self.rooms)

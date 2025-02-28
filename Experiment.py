@@ -27,31 +27,25 @@ class Experiment:
     def generateRequest(self):
         # 랜덤 요청 생성
         desired_room_type = random.choice(list(RoomType))
-        try:
-            duration_day = random.randint(1,5)
-            checkInDate = self.current_day + random.randint(0, 10)
-            checkOutDate = checkInDate + duration_day
-            if checkInDate < self.days and checkOutDate < self.days:
-                return Request(desired_room_type, checkInDate, checkOutDate)
-            else:
-                raise Exception
-        except:
-            return False
+        duration_day = random.randint(1,5)
+        checkInDate = self.current_day + random.randint(0, 10)
+        checkOutDate = checkInDate + duration_day
 
+        if checkInDate < self.days and checkOutDate < self.days:
+            return Request(desired_room_type, checkInDate, checkOutDate)
+
+        return Request(RoomType.NOT_A_ROOM, -1, -1)
 
     def step(self):
-        self.request = self.generateRequest()
-
-        if not self.request:
-            return False, False, self.current_day, self.current_hour
-
-        request_result = self.hotel.processRequest(self.request)
-        self.updateStatistics(request_result)
-
         self.current_hour += self.hour_per_step
         if self.current_hour >= 24:
             self.current_day += 1
             self.current_hour -= 24
+
+        self.request = self.generateRequest()
+        request_result = self.hotel.processRequest(self.request)
+
+        self.updateStatistics(request_result)
 
         # Debugging code
         for room in self.hotel.rooms:
@@ -66,7 +60,7 @@ class Experiment:
 
         _, checkInDate, checkOutDate = self.request.get_request_info()
 
-        if request_result:
+        if request_result.isAvailable(0, 0):
             self.succesed_requests += 1
             self.profit += request_result.get_price(checkInDate, checkOutDate)
 
