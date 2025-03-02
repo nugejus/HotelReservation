@@ -88,7 +88,7 @@ class ObservationWindow(tk.Toplevel, GUI):
         self.days = days
         self.step = step
         self.title("Experiment Observation")
-        self.geometry("724x500")
+        self.geometry("700x400")
 
         try:
             # ========== 상단 레이블(총 기간/단계 표시) ==========
@@ -112,9 +112,9 @@ class ObservationWindow(tk.Toplevel, GUI):
             tk.Label(left_frame, text=f"Now:").grid(row = 2, column = 0, pady=2)
 
             self.time_today = tk.Text(left_frame, height=1, width=5)
-            self.time_today.grid(row = 1, column = 1, pady = 2)
-
             self.time_now = tk.Text(left_frame, height=1, width=5)
+
+            self.time_today.grid(row = 1, column = 1, pady = 2)
             self.time_now.grid(row = 2, column = 1, pady = 2)
 
             # ---- Statistics ----
@@ -125,30 +125,49 @@ class ObservationWindow(tk.Toplevel, GUI):
             tk.Label(left_frame, text="Successful request percentage:").grid(row=6, column=0, pady = 2)
 
             self.avg_occupancy = tk.Text(left_frame, height=1, width=5)
-            self.avg_occupancy.grid(row=4, column=1, pady = 2)
-
             self.profit = tk.Text(left_frame, height=1, width=5)
-            self.profit.grid(row=5, column=1, pady = 2)
-            
             self.success_rate = tk.Text(left_frame, height=1, width=5)
+
+            self.avg_occupancy.grid(row=4, column=1, pady = 2)
+            self.profit.grid(row=5, column=1, pady = 2)
             self.success_rate.grid(row=6, column=1, pady = 2)
 
             # ========== 우측 정보 영역 ==========
             right_frame = tk.Frame(self, bd=2, relief=tk.GROOVE)
             right_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-            # ---- Поток заявок ----
-            tk.Label(right_frame, text="Request Flow", font=("Arial", 10, "underline")).pack(pady=5)
+            # ---- Request Flow ----
+            flow_frame = tk.Frame(right_frame)
+            flow_frame.pack(side = tk.TOP, fill = tk.BOTH)
 
-            self.flow_info = tk.Text(right_frame, height=10, width=40)
-            self.flow_info.pack(pady=5)
+            tk.Label(flow_frame, text="Request Flow", font=("Arial", 10, "underline")).grid(row = 0, pady=5)
 
-            # ---- Результат обработки заявок ----
-            result_label = tk.Label(right_frame, text="Request processing result", font=("Arial", 10, "underline"))
-            result_label.pack(pady=5)
+            self.flow_info = tk.Text(flow_frame, height=10, width=40)
+            self.flow_info.grid(row=1)
 
-            self.request_result = tk.Text(right_frame, height=10, width=40)
-            self.request_result.pack(pady=5)
+            # ---- Occupancy information of each room ----
+            occupancy_frame = tk.Frame(right_frame)
+            occupancy_frame.pack(side = tk.TOP, fill = tk.BOTH)
+
+            tk.Label(occupancy_frame, text= "Occupancy of each room", font=("Arial", 10, "underline")).grid(row=2,columnspan=4, sticky=tk.N)
+
+            tk.Label(occupancy_frame, text = "Single").grid(row = 3, column=0,sticky="w")
+            tk.Label(occupancy_frame, text = "Double").grid(row = 3, column=2,sticky="e")
+            tk.Label(occupancy_frame, text = "Double(Sofa)").grid(row = 4, column=0,sticky="w")
+            tk.Label(occupancy_frame, text = "Half Lux").grid(row = 4, column=2,sticky="e")
+            tk.Label(occupancy_frame, text = "Lux").grid(row=5, column=0,sticky="w")
+
+            self.occupancy_single = tk.Text(occupancy_frame, height=1, width=5)
+            self.occupancy_double = tk.Text(occupancy_frame, height=1, width=5)
+            self.occupancy_double_sofa = tk.Text(occupancy_frame, height=1, width=5)
+            self.occupancy_half_lux = tk.Text(occupancy_frame, height=1, width=5)
+            self.occupancy_lux = tk.Text(occupancy_frame, height=1, width=5)
+
+            self.occupancy_single.grid(row=3, column=1, pady = 2,sticky="w")           
+            self.occupancy_double.grid(row=3, column=3, pady = 2,sticky="e")
+            self.occupancy_double_sofa.grid(row=4, column=1, pady = 2,sticky="w")
+            self.occupancy_half_lux.grid(row=4, column=3, pady = 2,sticky="e") 
+            self.occupancy_lux.grid(row=5, column=1, pady = 2,sticky="w")
 
             # ========== 하단 버튼 ==========
             bottom_frame = tk.Frame(self)
@@ -176,9 +195,6 @@ class ObservationWindow(tk.Toplevel, GUI):
         
         self.flow_info.delete(1.0, tk.END)
         self.flow_info.insert(tk.END, request.display_request_info())
-
-        self.request_result.delete(1.0, tk.END)
-        self.request_result.insert(tk.END, request_result.displayRoomInfo())
             
         self.time_today.delete(1.0, tk.END)
         self.time_today.insert(tk.END, day)
