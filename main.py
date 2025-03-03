@@ -1,4 +1,4 @@
-from GUI import InitWindow
+from InitWindow import InitWindow
 
 if __name__ == "__main__":
     app = InitWindow()
