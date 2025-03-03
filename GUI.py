@@ -88,7 +88,7 @@ class ObservationWindow(tk.Toplevel, GUI):
         self.days = days
         self.step = step
         self.title("Experiment Observation")
-        self.geometry("700x400")
+        self.geometry("1200x400")
 
         try:
             # ========== 상단 레이블(총 기간/단계 표시) ==========
@@ -142,7 +142,7 @@ class ObservationWindow(tk.Toplevel, GUI):
 
             tk.Label(flow_frame, text="Request Flow", font=("Arial", 10, "underline")).grid(row = 0, pady=5)
 
-            self.flow_info = tk.Text(flow_frame, height=10, width=40)
+            self.flow_info = tk.Text(flow_frame, height=10, width=100)
             self.flow_info.grid(row=1)
 
             # ---- Occupancy information of each room ----
@@ -173,8 +173,8 @@ class ObservationWindow(tk.Toplevel, GUI):
             bottom_frame = tk.Frame(self)
             bottom_frame.pack(side=tk.BOTTOM, fill=tk.X, padx=10, pady=5)
 
-            self.btn_start = tk.Button(bottom_frame, text="Next step", command=self.next_stage)
-            self.btn_start.pack(side=tk.LEFT, padx=5)
+            self.btn_step = tk.Button(bottom_frame, text="Next step", command=self.next_stage)
+            self.btn_step.pack(side=tk.LEFT, padx=5)
 
             self.btn_exit = tk.Button(bottom_frame, text="Exit", command=self.terminate)
             self.btn_exit.pack(side=tk.RIGHT, padx=5)
@@ -188,26 +188,49 @@ class ObservationWindow(tk.Toplevel, GUI):
         messagebox.showinfo("Termination", "The Experiment has been terminated.")
         self.destroy()
         self.parent.destroy()
-    
-    def next_stage(self):
-        # 다음 단계 버튼 클릭 시 시뮬레이션 실행 후 통계 업데이트
-        request, request_result, day, time = self.experiment.step()
-        
+
+    def delete(self):
         self.flow_info.delete(1.0, tk.END)
-        self.flow_info.insert(tk.END, request.display_request_info())
-            
         self.time_today.delete(1.0, tk.END)
-        self.time_today.insert(tk.END, day)
-
         self.time_now.delete(1.0, tk.END)
-        self.time_now.insert(tk.END, time)
-
-        statistics = self.experiment.displayStatistics()
-
         self.avg_occupancy.delete(1.0, tk.END)
         self.profit.delete(1.0, tk.END)
         self.success_rate.delete(1.0, tk.END)
+        self.occupancy_single.delete(1.0, tk.END)
+        self.occupancy_double.delete(1.0, tk.END)
+        self.occupancy_double_sofa.delete(1.0, tk.END)
+        self.occupancy_half_lux.delete(1.0, tk.END)
+        self.occupancy_lux.delete(1.0, tk.END)
+
+    def endExperiment(self):
+        messagebox.showinfo("End of Experiment","The experiment ended")
+        self.destroy()
+        self.parent.destroy()
+
+    def next_stage(self):
+        # 다음 단계 버튼 클릭 시 시뮬레이션 실행 후 통계 업데이트
+        # request, request_result, day, time = self.experiment.step()
+        self.delete()
+        is_running = self.experiment.step()
+
+        if not is_running:
+            self.endExperiment()
+
+        day, hour = self.experiment.getTimeInfo()
+        statistics = self.experiment.displayStatistics()
+        
+        self.flow_info.insert(tk.END, self.experiment.displayReservationInfo())
+        self.time_today.insert(tk.END, day)
+        self.time_now.insert(tk.END, hour)
 
         self.avg_occupancy.insert(tk.END, statistics["avg_occupancy"])
         self.profit.insert(tk.END, statistics["profit"])
         self.success_rate.insert(tk.END, statistics["success_rate"])
+
+        room_occupancy = self.experiment.displayTodayOccupancy()
+
+        self.occupancy_single.insert(tk.END, room_occupancy[RoomType.SINGLE])
+        self.occupancy_double.insert(tk.END, room_occupancy[RoomType.SIMPLE_DOUBLE])
+        self.occupancy_double_sofa.insert(tk.END, room_occupancy[RoomType.DOUBLE_WITH_SOFA])
+        self.occupancy_half_lux.insert(tk.END, room_occupancy[RoomType.HALF_LUX])
+        self.occupancy_lux.insert(tk.END, room_occupancy[RoomType.LUX])

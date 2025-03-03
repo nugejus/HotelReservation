@@ -13,13 +13,16 @@ class Request:
         self.checkInDate = checkInDate
         self.checkOutDate = checkOutDate
     
-    def display_request_info(self):
-        if self.roomType != RoomType.NOT_A_ROOM:
-            return  f"Room Type : {Request.names_to_display[self.roomType]} \n" + \
-                    f"Check in date : day {self.checkInDate} \n" + \
-                    f"Check out date : day {self.checkOutDate}"
-        else:
-            return "Nobody wants to stay in Our Hotel...."
+    # GETTERS
+    
+    def get_time_info(self):
+        return self.checkInDate, self.checkOutDate
+    
+    def get_room_name(self):
+        return Request.names_to_display[self.roomType]
     
     def get_request_info(self):
         return self.roomType, self.checkInDate, self.checkOutDate
+    
+    def isRequest(self):
+        return self.roomType != RoomType.NOT_A_ROOM

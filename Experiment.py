@@ -24,9 +24,11 @@ class Experiment:
 
         self.request = None
 
+        self.RoomTypes = list(RoomType)[:5]
+
     def generateRequest(self):
         # 랜덤 요청 생성
-        desired_room_type = random.choice(list(RoomType))
+        desired_room_type = random.choice(self.RoomTypes)
         duration_day = random.randint(1,5)
         checkInDate = self.current_day + random.randint(0, 10)
         checkOutDate = checkInDate + duration_day
@@ -42,10 +44,13 @@ class Experiment:
             self.current_day += 1
             self.current_hour -= 24
 
-        self.request = self.generateRequest()
-        request_result = self.hotel.processRequest(self.request)
+        if self.current_day == self.days:
+            return False
 
-        self.updateStatistics(request_result)
+        self.request = self.generateRequest()
+        self.request_result = self.hotel.processRequest(self.request)
+
+        self.updateStatistics()
 
         # Debugging code
         for room in self.hotel.rooms:
@@ -53,21 +58,48 @@ class Experiment:
         print()
         # Debugging code
 
-        return self.request, request_result, self.current_day, self.current_hour
+        return True
 
-    def updateStatistics(self, request_result):
+    def updateStatistics(self):
         self.total_requests += 1
 
-        _, checkInDate, checkOutDate = self.request.get_request_info()
+        checkInDate, checkOutDate = self.request.get_time_info()
 
-        if request_result.isAvailable(0, 0):
+        if self.request_result.isAvailable(0, 0):
             self.succesed_requests += 1
-            self.profit += request_result.get_price(checkInDate, checkOutDate)
+            self.profit += self.request_result.get_price(checkInDate, checkOutDate)
 
         self.success_rate = (self.succesed_requests / self.total_requests) * 100
         self.avg_occupancy = (self.hotel.get_current_occupancy(self.current_day) / self.total_occupancy) * 100
         
+
+    # GETTERS
     def displayStatistics(self):
         return {"avg_occupancy" : self.avg_occupancy,
                 "profit" : self.profit,
                 "success_rate" : self.success_rate}
+    
+    def displayReservationInfo(self):
+        if self.request.isRequest():
+            room_type, (checkIn, checkOut) = self.request.get_room_name(), self.request.get_time_info()
+            if self.request_result.isRoom():
+                return  f"+/ Id : {self.request_result.get_id()} / Wanted : {room_type} / " + \
+                        f"Reserved : {self.request_result.get_type_name()} / In {checkIn} / Out {checkOut}"
+            else:
+                return f"-/ Wanted : {room_type} / In : {checkIn} / Out : {checkOut}"
+        else:
+            return ""
+        
+    def displayTodayOccupancy(self):
+        occupancy = self.hotel.getTodayOccupancy(self.current_day)
+        room_numbers_each_type = self.hotel.get_room_info()
+        display = dict()
+
+        for room_type in RoomType:
+            if not room_type == RoomType.NOT_A_ROOM:
+                display[room_type] = f"{occupancy[room_type]}/{room_numbers_each_type[room_type]}"
+
+        return display
+
+    def getTimeInfo(self):
+        return self.current_day, self.current_hour

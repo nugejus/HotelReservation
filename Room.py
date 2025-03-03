@@ -21,28 +21,31 @@ class Room:
         if self.type != RoomType.NOT_A_ROOM:
             self.price = Room.prices[room_type]
             self.occupancyDuration = [False] * days
-
-    def isAvailable(self, checkInDate, checkOutDate):
-        return self.type != RoomType.NOT_A_ROOM and not any(self.occupancyDuration[checkInDate:checkOutDate])
     
+    # SETTERS
     def checkIn(self, checkInDate, checkOutDate):
         for i in range(checkInDate, checkOutDate):
             self.occupancyDuration[i] = True
         return self
 
-    def get_price(self, checkInDate, checkOutDate):
-        return self.price * (checkOutDate - checkInDate)
+    # GETTERS
+    def isAvailable(self, checkInDate, checkOutDate):
+        return self.type != RoomType.NOT_A_ROOM and not any(self.occupancyDuration[checkInDate:checkOutDate])
+
+    def isRoom(self):
+        return self.type != RoomType.NOT_A_ROOM
     
-    def displayRoomInfo(self):
-        if self.type != RoomType.NOT_A_ROOM:
-            return  f"RoomId : {self.id} \n" + \
-                    f"RoomType : {Room.names_to_display[self.type]} \n" + \
-                    f"Price : {self.price} \n"
-        else:
-            return "Could not check in"
+    def isFree(self, today):
+        return not self.occupancyDuration[today]
     
     def get_type(self):
         return self.type
+    
+    def get_price(self, checkInDate, checkOutDate):
+        return self.price * (checkOutDate - checkInDate)
 
-    def isFree(self, today):
-        return not self.occupancyDuration[today]
+    def get_id(self):
+        return self.id
+    
+    def get_type_name(self):
+        return Room.names_to_display[self.type]

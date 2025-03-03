@@ -1,15 +1,27 @@
 from Room import Room
 from RoomType import RoomType
 
+from collections import defaultdict
+
 class Hotel:
     def __init__(self, rooms_info, days):
         self.rooms = []
+        self.rooms_info = rooms_info
         c = 0
         for room_type, numbers in rooms_info.items():
             for i in range(c, c + numbers):
                 self.rooms.append(Room(i, room_type, days))
             c = c + numbers + 1
 
+    def processRequest(self, req):
+        roomType, checkInDate, checkOutDate = req.get_request_info()
+        room = self.checkAvailability(roomType, checkInDate, checkOutDate)
+        if room:
+            return room.checkIn(checkInDate, checkOutDate)
+        else:
+            return Room(-1, RoomType.NOT_A_ROOM, -1)
+        
+    # GETTERS
     def checkAvailability(self, roomType, checkInDate, checkOutDate):
         # 요청한 타입과 일치하는 객실 검색
         for room in self.rooms:
@@ -20,14 +32,6 @@ class Hotel:
             if room.get_type() > roomType and room.isAvailable(checkInDate, checkOutDate):
                 return room
         return None
-
-    def processRequest(self, req):
-        roomType, checkInDate, checkOutDate = req.get_request_info()
-        room = self.checkAvailability(roomType, checkInDate, checkOutDate)
-        if room:
-            return room.checkIn(checkInDate, checkOutDate)
-        else:
-            return Room(-1, RoomType.NOT_A_ROOM, -1)
         
     def get_room_numbers(self):
         return len(self.rooms)
@@ -37,3 +41,14 @@ class Hotel:
         for room in self.rooms:
             current_occupancy += not room.isFree(today)
         return current_occupancy
+    
+    def getTodayOccupancy(self, today):
+        occupancy = defaultdict(int)
+        
+        for room in self.rooms:
+            occupancy[room.type] += not room.isFree(today)
+        
+        return occupancy
+    
+    def get_room_info(self):
+        return self.rooms_info
