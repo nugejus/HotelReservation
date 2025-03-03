@@ -1,7 +1,7 @@
-from Hotel import Hotel
 import random
-from RoomType import RoomType
-from Request import Request
+from Model.RoomType import RoomType
+from Model.Hotel import Hotel
+from Model.Request import Request
 
 from typing import *
 T = TypeVar("T")
@@ -31,6 +31,7 @@ class Experiment:
         self.total_occupancy = self.hotel.get_room_numbers()  # The total number of rooms in the hotel
         self.succesed_requests = 0           # Number of successfully processed requests
 
+        self.sum_occupancy = 0
         self.avg_occupancy = 0   # The average (actually current day's) occupancy rate (in %)
         self.success_rate = 0    # The success rate of requests (in %)
         self.profit = 0          # The total profit (e.g., sum of room prices)
@@ -120,10 +121,9 @@ class Experiment:
                 self.profit += request_result.get_price(checkInDate, checkOutDate)
 
         self.success_rate = (self.succesed_requests / self.total_requests) * 100
-        self.avg_occupancy = (
-            self.hotel.get_current_occupancy(self.current_day) 
-            / self.total_occupancy
-        ) * 100
+        self.avg_occupancy_today = self.hotel.get_current_occupancy(self.current_day) / self.hotel.get_room_numbers()
+        self.sum_occupancy += self.avg_occupancy_today
+        self.avg_occupancy = (self.sum_occupancy / self.current_day) * 100 if self.current_day else self.sum_occupancy
 
     # GETTERS (Display / Utility Methods)
     def displayStatistics(self) -> Dict[str, T]:
@@ -174,3 +174,6 @@ class Experiment:
         Returns the current simulation time as a tuple (day, hour).
         """
         return self.current_day, self.current_hour
+
+    def get_init_info(self):
+        return self.days, self.hour_per_step

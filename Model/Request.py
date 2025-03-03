@@ -1,4 +1,4 @@
-from RoomType import RoomType
+from Model.RoomType import RoomType
 from typing import *
 
 class Request:

@@ -1,9 +1,9 @@
-from Room import Room
-from RoomType import RoomType
+from Model.Room import Room
+from Model.Request import Request
+from Model.RoomType import RoomType
 
 from collections import defaultdict
 from typing import *
-from Request import Request
 
 class Hotel:
     """

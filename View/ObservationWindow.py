@@ -1,13 +1,14 @@
 import tkinter as tk
 from tkinter import messagebox
-from Experiment import Experiment
-from RoomType import RoomType
-from GUI import GUI
+
+from Model.RoomType import RoomType
+
+from View.GUI import GUI
 
 from typing import *
 
 class ObservationWindow(tk.Toplevel, GUI):
-    def __init__(self, parent, days: int, step: int, rooms: Dict[RoomType, int]) -> None:
+    def __init__(self, parent, controller) -> None:
         """
         This class creates a separate observation window for the running experiment.
         It inherits from tk.Toplevel (for creating a new top-level window) and GUI (for shared GUI-related functionalities).
@@ -21,8 +22,7 @@ class ObservationWindow(tk.Toplevel, GUI):
         
         # Store references to parent and experiment parameters
         self.parent = parent
-        self.days = days
-        self.step = step
+        self.controller = controller
 
         # Set window title and size
         self.title("Experiment Observation")
@@ -32,6 +32,7 @@ class ObservationWindow(tk.Toplevel, GUI):
         top_frame = tk.Frame(self)
         top_frame.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
+        days, step = self.controller.get_init_info()
         self.lbl_experiment_info = tk.Label(
             top_frame,
             text=f"Total day = {days} days, hour per step = {step} hour",
@@ -115,9 +116,6 @@ class ObservationWindow(tk.Toplevel, GUI):
 
         self.btn_exit = tk.Button(bottom_frame, text="Exit", command=self.terminate)
         self.btn_exit.pack(side=tk.RIGHT, padx=5)
-
-        # Initialize the Experiment instance
-        self.experiment = Experiment(days, step, rooms)
     
     def terminate(self) -> None:
         """
@@ -154,7 +152,7 @@ class ObservationWindow(tk.Toplevel, GUI):
         # you could implement something like experiment.displayFinalStatistics() in Experiment.
         # For now, we'll just reuse the current statistics as an example.
         
-        final_stats = self.experiment.displayStatistics()  # Using current stats as final result
+        final_stats = self.controller.displayStatistics()  # Using current stats as final result
         messagebox.showinfo("Experiment Completed", f"Experiment has ended.\n\n{final_stats}")
         
         # Close this window and end the program
@@ -169,7 +167,7 @@ class ObservationWindow(tk.Toplevel, GUI):
         self.delete()
         
         # Perform one step in the simulation
-        is_running = self.experiment.step()
+        is_running = self.controller.step()
 
         # If the experiment is no longer running, display final stats and terminate
         if not is_running:
@@ -177,11 +175,11 @@ class ObservationWindow(tk.Toplevel, GUI):
             return
 
         # Otherwise, update the UI with the latest data
-        day, hour = self.experiment.getTimeInfo()
-        statistics = self.experiment.displayStatistics()
+        day, hour = self.controller.get_time_info()
+        statistics = self.controller.get_statistics()
         
         # Insert reservation (request) info into the flow_info text box
-        self.flow_info.insert(tk.END, self.experiment.displayReservationInfo())
+        self.flow_info.insert(tk.END, self.controller.get_reservation_info())
         
         # Time-related info
         self.time_today.insert(tk.END, day)
@@ -193,7 +191,7 @@ class ObservationWindow(tk.Toplevel, GUI):
         self.success_rate.insert(tk.END, statistics["success_rate"])
 
         # Room occupancy info
-        room_occupancy = self.experiment.displayTodayOccupancy()
+        room_occupancy = self.controller.get_today_occupancy()
         self.occupancy_single.insert(tk.END, room_occupancy[RoomType.SINGLE])
         self.occupancy_double.insert(tk.END, room_occupancy[RoomType.SIMPLE_DOUBLE])
         self.occupancy_double_sofa.insert(tk.END, room_occupancy[RoomType.DOUBLE_WITH_SOFA])

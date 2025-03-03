@@ -1,13 +1,19 @@
-from GUI import GUI
 import tkinter as tk
 from tkinter import messagebox
-from RoomType import RoomType
-from ObservationWindow import ObservationWindow
+
+from Model.RoomType import RoomType
+
+from View.GUI import GUI
+from View.ObservationWindow import ObservationWindow
+
+from Controller import SimulationController
 
 class InitWindow(GUI):
     def __init__(self) -> None:
         # Call the constructor of the parent GUI class
         super().__init__()
+
+        self.controller = SimulationController()
         
         # Set the title of the window
         self.title("Initialize Experiment")
@@ -73,7 +79,7 @@ class InitWindow(GUI):
         days = self.entry_days.get()
         step = self.entry_step.get()
         
-        # Validate that days and step are integers
+        # Validate that days and step are integers         
         if not days.isdigit() or not step.isdigit():
             messagebox.showerror("Error", "Required INTEGER value.")
             return
@@ -90,12 +96,14 @@ class InitWindow(GUI):
         # Convert days and step to integers
         days = int(days)
         step = int(step)
-        
+
+        self.controller.initialize_experiment(days, step, rooms)
+
         # Hide the current window (InitWindow)
         self.withdraw()
         
         # Create and display the ObservationWindow
-        obs_win = ObservationWindow(self, days, step, rooms)
+        obs_win = ObservationWindow(self, controller = self.controller)
         obs_win.mainloop()
     
     def terminate(self) -> None:

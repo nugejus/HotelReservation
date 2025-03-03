@@ -1,5 +1,6 @@
 from enum import Enum
 from typing import Self
+
 class RoomType(Enum):
     """
     An enumeration for the different types of rooms in the system.
