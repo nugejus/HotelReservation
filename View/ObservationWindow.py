@@ -152,7 +152,7 @@ class ObservationWindow(tk.Toplevel, GUI):
         # you could implement something like experiment.displayFinalStatistics() in Experiment.
         # For now, we'll just reuse the current statistics as an example.
         
-        final_stats = self.controller.displayStatistics()  # Using current stats as final result
+        final_stats = self.controller.get_statistics()  # Using current stats as final result
         messagebox.showinfo("Experiment Completed", f"Experiment has ended.\n\n{final_stats}")
         
         # Close this window and end the program

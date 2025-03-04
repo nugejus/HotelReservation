@@ -34,6 +34,7 @@ class Experiment:
         self.sum_occupancy = 0
         self.avg_occupancy = 0   # The average (actually current day's) occupancy rate (in %)
         self.success_rate = 0    # The success rate of requests (in %)
+        self.occupancy_count = 1
         self.profit = 0          # The total profit (e.g., sum of room prices)
 
         # Current time tracking
@@ -121,9 +122,11 @@ class Experiment:
                 self.profit += request_result.get_price(checkInDate, checkOutDate)
 
         self.success_rate = (self.succesed_requests / self.total_requests) * 100
-        self.avg_occupancy_today = self.hotel.get_current_occupancy(self.current_day) / self.hotel.get_room_numbers()
-        self.sum_occupancy += self.avg_occupancy_today
-        self.avg_occupancy = (self.sum_occupancy / self.current_day) * 100 if self.current_day else self.sum_occupancy
+
+        self.total_occupancy_today = (self.hotel.get_current_occupancy(self.current_day) / self.hotel.get_room_numbers()) * 100
+        self.sum_occupancy += self.total_occupancy_today
+        self.avg_occupancy = self.sum_occupancy / self.occupancy_count
+        self.occupancy_count += 1
 
     # GETTERS (Display / Utility Methods)
     def displayStatistics(self) -> Dict[str, T]:
