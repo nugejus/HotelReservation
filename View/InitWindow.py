@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+from typing import *
 
 from Model.RoomType import RoomType
 
@@ -60,12 +61,8 @@ class InitWindow(GUI):
         # Button to exit the program
         self.exit_button = tk.Button(self, text="Exit", command=self.terminate)
         self.exit_button.grid(row=5, column=3, columnspan=2, pady=10)
-        
-    def start_experiment(self) -> None:
-        """
-        Validates user input, converts them to integers if valid,
-        and then opens the ObservationWindow to start the experiment.
-        """
+
+    def parameter_input(self) -> Tuple[int, int, Dict[RoomType, int]]:
         # Gather the entered room numbers into a dictionary
         rooms = {
             RoomType.SINGLE: self.single.get(),
@@ -74,18 +71,21 @@ class InitWindow(GUI):
             RoomType.HALF_LUX: self.half_lux.get(),
             RoomType.LUX: self.lux.get()
         }
-        
         # Get the number of days and steps from the Entry fields
         days = self.entry_days.get()
         step = self.entry_step.get()
-        
-        # Validate that days and step are integers         
+
+        # Validate that days and step are integers
+        days = days if days else "20" # default value
+        step = step if step else "10" # default value
+
         if not days.isdigit() or not step.isdigit():
             messagebox.showerror("Error", "Required INTEGER value.")
             return
 
         # Validate that each room count is also an integer
         for key, value in rooms.items():
+            value = value if value else "5" # default value
             if not value.isdigit():
                 messagebox.showerror("Error", "Required INTEGER value.")
                 return
@@ -93,9 +93,14 @@ class InitWindow(GUI):
                 # Convert the valid strings to integers
                 rooms[key] = int(value)
 
-        # Convert days and step to integers
-        days = int(days)
-        step = int(step)
+        return int(days), int(step), rooms
+    
+    def start_experiment(self) -> None:
+        """
+        Validates user input, converts them to integers if valid,
+        and then opens the ObservationWindow to start the experiment.
+        """
+        days, step, rooms = self.parameter_input()        
 
         self.controller.initialize_experiment(days, step, rooms)
 
