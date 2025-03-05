@@ -2,36 +2,34 @@ import tkinter as tk
 from tkinter import messagebox
 
 from Model.RoomType import RoomType
-
 from View.GUI import GUI
-
 from typing import *
 
 class ObservationWindow(tk.Toplevel, GUI):
     def __init__(self, parent, controller) -> None:
         """
-        This class creates a separate observation window for the running experiment.
-        It inherits from tk.Toplevel (for creating a new top-level window) and GUI (for shared GUI-related functionalities).
+        Creates a separate observation window for monitoring the running experiment.
+        Inherits from tk.Toplevel to create a new top-level window and GUI for shared functionalities.
         
-        :param parent: The parent window (InitWindow) instance
-        :param days: Total days for the experiment
-        :param step: The time interval (hours) per step
-        :param rooms: A dictionary containing the number of rooms per RoomType
+        :param parent: The parent window (e.g., an instance of InitWindow).
+        :param controller: The ExperimentController instance managing the simulation.
         """
+        # Initialize the Toplevel window with the parent
         super().__init__(parent)
         
-        # Store references to parent and experiment parameters
+        # Store references to the parent window and the experiment controller
         self.parent = parent
         self.controller = controller
 
-        # Set window title and size
+        # Set the window title and size
         self.title("Experiment Observation")
         self.geometry("1200x400")
 
-        # ========== Top label (displays total days / steps) ==========
+        # ========= Top Label (Displays initial experiment settings) =========
         top_frame = tk.Frame(self)
         top_frame.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
+        # Retrieve initial experiment parameters (total days and hours per step)
         days, step = self.controller.get_init_info()
         self.lbl_experiment_info = tk.Label(
             top_frame,
@@ -40,95 +38,96 @@ class ObservationWindow(tk.Toplevel, GUI):
         )
         self.lbl_experiment_info.pack(side=tk.LEFT)
 
-        # ========== Left-side information area ==========
+        # ========= Left-side Information Area =========
         left_frame = tk.Frame(self, bd=2, relief=tk.GROOVE)
         left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-        # ---- Time Info ----
+        # ---- Time Information ----
         tk.Label(left_frame, text="Time Info", font=("Arial", 10, "underline")).grid(row=0, column=0, pady=5)
         tk.Label(left_frame, text="Today:").grid(row=1, column=0, pady=2)
         tk.Label(left_frame, text="Now:").grid(row=2, column=0, pady=2)
 
+        # Text widgets to display the current simulation day and hour
         self.time_today = tk.Text(left_frame, height=1, width=5)
         self.time_now = tk.Text(left_frame, height=1, width=5)
-
         self.time_today.grid(row=1, column=1, pady=2)
         self.time_now.grid(row=2, column=1, pady=2)
 
-        # ---- Statistics ----
+        # ---- Statistics Information ----
         tk.Label(left_frame, text="Statistics", font=("Arial", 10, "underline")).grid(row=3, pady=5)
-
         tk.Label(left_frame, text="Average occupancy:").grid(row=4, column=0, pady=2)
         tk.Label(left_frame, text="Profit:").grid(row=5, column=0, pady=2)
         tk.Label(left_frame, text="Successful request %:").grid(row=6, column=0, pady=2)
 
+        # Text widgets to display average occupancy, profit, and success rate
         self.avg_occupancy = tk.Text(left_frame, height=1, width=5)
         self.profit = tk.Text(left_frame, height=1, width=5)
         self.success_rate = tk.Text(left_frame, height=1, width=5)
-
         self.avg_occupancy.grid(row=4, column=1, pady=2)
         self.profit.grid(row=5, column=1, pady=2)
         self.success_rate.grid(row=6, column=1, pady=2)
 
-        # ========== Right-side information area ==========
+        # ========= Right-side Information Area =========
         right_frame = tk.Frame(self, bd=2, relief=tk.GROOVE)
         right_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-        # ---- Request Flow ----
+        # ---- Request Flow Section ----
         flow_frame = tk.Frame(right_frame)
         flow_frame.pack(side=tk.TOP, fill=tk.BOTH)
-
         tk.Label(flow_frame, text="Request Flow", font=("Arial", 10, "underline")).grid(row=0, pady=5)
-
+        # Text widget to display the flow of reservation requests and their outcomes
         self.flow_info = tk.Text(flow_frame, height=10, width=100)
         self.flow_info.grid(row=1)
 
-        # ---- Occupancy information of each room ----
+        # ---- Room Occupancy Information Section ----
         occupancy_frame = tk.Frame(right_frame)
         occupancy_frame.pack(side=tk.TOP, fill=tk.BOTH)
-
         tk.Label(occupancy_frame, text="Occupancy of each room", font=("Arial", 10, "underline")).grid(row=2, columnspan=4, sticky=tk.N)
-
+        
+        # Labels for different room types
         tk.Label(occupancy_frame, text="Single").grid(row=3, column=0, sticky="w")
         tk.Label(occupancy_frame, text="Double").grid(row=3, column=2, sticky="e")
         tk.Label(occupancy_frame, text="Double(Sofa)").grid(row=4, column=0, sticky="w")
         tk.Label(occupancy_frame, text="Half Lux").grid(row=4, column=2, sticky="e")
         tk.Label(occupancy_frame, text="Lux").grid(row=5, column=0, sticky="w")
-
+        
+        # Text widgets to display the occupancy status for each room type
         self.occupancy_single = tk.Text(occupancy_frame, height=1, width=5)
         self.occupancy_double = tk.Text(occupancy_frame, height=1, width=5)
         self.occupancy_double_sofa = tk.Text(occupancy_frame, height=1, width=5)
         self.occupancy_half_lux = tk.Text(occupancy_frame, height=1, width=5)
         self.occupancy_lux = tk.Text(occupancy_frame, height=1, width=5)
-
         self.occupancy_single.grid(row=3, column=1, pady=2, sticky="w")
         self.occupancy_double.grid(row=3, column=3, pady=2, sticky="e")
         self.occupancy_double_sofa.grid(row=4, column=1, pady=2, sticky="w")
         self.occupancy_half_lux.grid(row=4, column=3, pady=2, sticky="e")
         self.occupancy_lux.grid(row=5, column=1, pady=2, sticky="w")
 
-        # ========== Bottom buttons ==========
+        # ========= Bottom Buttons =========
         bottom_frame = tk.Frame(self)
         bottom_frame.pack(side=tk.BOTTOM, fill=tk.X, padx=10, pady=5)
-
+        # Button to execute the next simulation step
         self.btn_step = tk.Button(bottom_frame, text="Next step", command=self.next_stage, width=7)
         self.btn_step.pack(padx=5)
-
+        # Button to exit the observation window (and parent window)
         self.btn_exit = tk.Button(bottom_frame, text="Exit", command=self.terminate, width=7)
         self.btn_exit.pack(padx=5)
-
-        self.btn_goto_end = tk.Button(bottom_frame, text = "Goto End", command = self.goto_end, width=7)
+        # Button to jump to the final state of the simulation
+        self.btn_goto_end = tk.Button(bottom_frame, text="Goto End", command=self.goto_end, width=7)
         self.btn_goto_end.pack(padx=5)
 
     def goto_end(self) -> None:
+        """
+        Advances the experiment to its end state by processing all remaining simulation steps,
+        and then updates the GUI with the final results.
+        """
         self.controller.gotoEnd()
         self.updateScreen()
 
-    
     def terminate(self) -> None:
         """
-        Terminates the current observation window and also destroys the parent window.
-        This effectively ends the entire program flow.
+        Terminates the observation window and its parent window, effectively ending the experiment.
+        A message box is displayed before closing.
         """
         messagebox.showinfo("Termination", "The Experiment has been terminated.")
         self.destroy()
@@ -136,8 +135,7 @@ class ObservationWindow(tk.Toplevel, GUI):
 
     def delete(self) -> None:
         """
-        A helper method to clear out all the text fields before updating them.
-        This prevents old data from persisting between steps.
+        Clears all text fields in the GUI to remove old data before updating them with new simulation results.
         """
         self.flow_info.delete(1.0, tk.END)
         self.time_today.delete(1.0, tk.END)
@@ -153,39 +151,43 @@ class ObservationWindow(tk.Toplevel, GUI):
 
     def endExperiment(self) -> None:
         """
-        Called when the experiment (simulation) finishes all its steps.
-        Displays final statistics (if desired) and terminates the program.
+        Called when the experiment finishes all its simulation steps.
+        Displays the final statistics via a message box and terminates the program.
         """
-        # If you want to display overall statistics across all days, 
-        # you could implement something like experiment.displayFinalStatistics() in Experiment.
-        # For now, we'll just reuse the current statistics as an example.
-        
-        final_stats = self.controller.displayStatistics()  # Using current stats as final result
+        # Retrieve the final statistics from the controller (currently using displayStatistics as final stats)
+        final_stats = self.controller.displayStatistics()
         messagebox.showinfo("Experiment Completed", f"Experiment has ended.\n\n{final_stats}")
-        
-        # Close this window and end the program
+        # Terminate both this window and the parent window
         self.terminate()
 
     def updateScreen(self) -> None:
+        """
+        Updates the entire observation window with the latest simulation data:
+          - Reservation flow information.
+          - Current simulation time.
+          - Statistics (average occupancy, profit, success rate).
+          - Occupancy details per room type.
+        """
+        # Clear all existing data in the text widgets
         self.delete()
 
-        # Otherwise, update the UI with the latest data
+        # Retrieve current simulation time (day and hour) and statistics from the controller
         day, hour = self.controller.getTimeInfo()
         statistics = self.controller.displayStatistics()
         
-        # Insert reservation (request) info into the flow_info text box
+        # Update the request flow information
         self.flow_info.insert(tk.END, self.controller.displayReservationInfo())
         
-        # Time-related info
+        # Update time-related fields
         self.time_today.insert(tk.END, day)
         self.time_now.insert(tk.END, hour)
 
-        # Statistics info
+        # Update statistics fields
         self.avg_occupancy.insert(tk.END, statistics["avg_occupancy"])
         self.profit.insert(tk.END, statistics["profit"])
         self.success_rate.insert(tk.END, statistics["success_rate"])
 
-        # Room occupancy info
+        # Update room occupancy information using data from the controller
         room_occupancy = self.controller.displayTodayOccupancy()
         self.occupancy_single.insert(tk.END, room_occupancy[RoomType.SINGLE])
         self.occupancy_double.insert(tk.END, room_occupancy[RoomType.SIMPLE_DOUBLE])
@@ -193,21 +195,24 @@ class ObservationWindow(tk.Toplevel, GUI):
         self.occupancy_half_lux.insert(tk.END, room_occupancy[RoomType.HALF_LUX])
         self.occupancy_lux.insert(tk.END, room_occupancy[RoomType.LUX])
 
-    
     def next_stage(self) -> None:
         """
-        Called when the 'Next step' button is clicked.
-        Runs one step of the experiment, updates the GUI fields, and checks if the experiment has ended.
+        Executes the next step in the simulation:
+          - Clears the current display.
+          - Runs one simulation step via the controller.
+          - If the experiment has ended, displays final statistics and terminates.
+          - Otherwise, updates the GUI with new data.
         """
-        # Clear existing text to avoid overlapping old data
+        # Clear previous data from the screen
         self.delete()
         
-        # Perform one step in the simulation
+        # Run one simulation step; step() returns False if the simulation has ended.
         is_running = self.controller.step()
 
-        # If the experiment is no longer running, display final stats and terminate
+        # If the simulation has ended, finish the experiment
         if not is_running:
             self.endExperiment()
             return
 
+        # Otherwise, update the screen with the latest simulation data
         self.updateScreen()
