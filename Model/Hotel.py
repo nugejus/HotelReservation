@@ -115,7 +115,7 @@ class Hotel:
         
         for room in self.rooms:
             occupancy[room.type] += room.isOccupied(today)
-        print()
+        # print()
         
         return occupancy
     

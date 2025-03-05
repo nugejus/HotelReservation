@@ -2,6 +2,7 @@ import random
 from Model.RoomType import RoomType
 from Model.Hotel import Hotel
 from Model.Request import Request
+from Model.Statistics import Statistics
 
 from typing import *
 T = TypeVar("T")
@@ -24,33 +25,25 @@ class ExperimentController:
         # Simulation parameters
         self.days = None                      # The total simulation duration in days
         self.hour_per_step = None    # The number of hours per simulation step
-        self.hotel = None
         self.request_num_per_step = None
+
+        self.hotel = None
+        self.statistics = None
+
+        self.current_hour = 0
+        self.current_day = 0
+
+        # Possible room types for random request generation (excluding NOT_A_ROOM)
+        self.RoomTypes = list(RoomType)[:5]
 
     def initialize_experiment(self, days, steps, rooms_info, request_num_per_step):
         # Simulation parameters
         self.days = days                      # The total simulation duration in days
         self.hour_per_step = steps    # The number of hours per simulation step
-        self.hotel = Hotel(rooms_info, days)
         self.request_num_per_step = request_num_per_step
 
-        # Statistical data
-        self.total_requests = 0              # Total requests generated so far
-        self.total_occupancy = self.hotel.get_room_numbers()  # The total number of rooms in the hotel
-        self.succesed_requests = 0           # Number of successfully processed requests
-
-        self.sum_occupancy = 0
-        self.avg_occupancy = 0   # The average (actually current day's) occupancy rate (in %)
-        self.success_rate = 0    # The success rate of requests (in %)
-        self.occupancy_count = 1
-        self.profit = 0          # The total profit (e.g., sum of room prices)
-
-        # Current time tracking
-        self.current_day = 0
-        self.current_hour = 0
-
-        # Possible room types for random request generation (excluding NOT_A_ROOM)
-        self.RoomTypes = list(RoomType)[:5]
+        self.hotel = Hotel(rooms_info, days)
+        self.statistics = Statistics(self.hotel.get_room_numbers())
 
     def _generateRequest(self) -> Request:
         """
@@ -105,9 +98,9 @@ class ExperimentController:
         # Generate and process requests
         self.requests = self.generateRequests(*self.request_num_per_step)
         self.request_results = self.hotel.processRequests(self.requests)
-
+        current_occupancy = self.hotel.get_current_occupancy(self.current_day)
         # Update experiment statistics
-        self._updateStatistics()
+        self.statistics.update(self.requests, self.request_results, current_occupancy)
 
         # # Debugging code (prints occupancy info)
         # for room in self.hotel.rooms:
@@ -116,39 +109,9 @@ class ExperimentController:
 
         return True
 
-    def _updateStatistics(self) -> None:
-        """
-        Updates the statistical attributes based on the latest requests and processing results.
-        """
-        self.total_requests += len(self.request_results)
-
-        for request, request_result in zip(self.requests, self.request_results):
-            checkInDate, checkOutDate = request.get_time_info()
-
-            # If the room returned is valid,
-            # we consider it a successful reservation.
-            if request_result.isRoom():
-                self.succesed_requests += 1
-                self.profit += request_result.get_price(checkInDate, checkOutDate)
-
-        self.success_rate = (self.succesed_requests / self.total_requests) * 100
-
-        self.total_occupancy_today = (self.hotel.get_current_occupancy(self.current_day) / self.hotel.get_room_numbers()) * 100
-        self.sum_occupancy += round(self.total_occupancy_today,2)
-        self.avg_occupancy = self.sum_occupancy / self.occupancy_count
-        self.occupancy_count += 1
-
     # GETTERS (Display / Utility Methods)
-    def displayStatistics(self) -> Dict[str, T]:
-        """
-        Returns a dictionary containing current occupancy, profit, and success rate.
-        Useful for GUI updates or console logs.
-        """
-        return {
-            "avg_occupancy": self.avg_occupancy,
-            "profit": self.profit,
-            "success_rate": self.success_rate
-        }
+    def displayStatistics(self):
+        return self.statistics.displayStatistics()
     
     def displayReservationInfo(self) -> str:
         """
@@ -196,8 +159,9 @@ class ExperimentController:
         total_max_steps = self.days * (24 // self.hour_per_step) * self.request_num_per_step[1]
         self.requests = self.generateRequests(total_min_steps, total_max_steps)
         self.request_results = self.hotel.processRequests(self.requests)
+        current_occupancy = self.hotel.get_current_occupancy(self.current_day)
 
         self.current_day = self.days - 1
         self.current_hour = 23
 
-        self._updateStatistics()
+        self.statistics.update(self.requests, self.request_results, current_occupancy)
