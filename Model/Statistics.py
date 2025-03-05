@@ -39,7 +39,7 @@ class Statistics:
 
             # If the result represents a valid room (reservation successful),
             # count it as a successful reservation and add the price for the stay.
-            if request_result.isRoom():
+            if request_result.is_room():
                 self.succesed_requests += 1
                 self.profit += request_result.get_price(checkInDate, checkOutDate)
 
@@ -55,7 +55,7 @@ class Statistics:
         # Increment the count of occupancy updates.
         self.occupancy_count += 1
 
-    def displayStatistics(self) -> Dict[str, float]:
+    def display_statistics(self) -> Dict[str, float]:
         """
         Returns a dictionary containing the average occupancy, total profit, and success rate.
         This information can be used for updating GUIs or logging to the console.

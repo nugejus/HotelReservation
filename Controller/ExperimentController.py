@@ -53,7 +53,7 @@ class ExperimentController:
         self.hotel = Hotel(rooms_info, days)
         self.statistics = Statistics(self.hotel.get_room_numbers())
 
-    def _generateRequest(self) -> Request:
+    def generate_request(self) -> Request:
         """
         Generates a single random room request.
         The request has a randomly selected room type (from valid types), a random duration (1 to 5 days),
@@ -83,7 +83,7 @@ class ExperimentController:
         # Otherwise, return an invalid/dummy request indicating an out-of-range request
         return Request(RoomType.NOT_A_ROOM, -1, -1)
     
-    def generateRequests(self, min_request_num: int, max_request_num: int) -> List[Request]:
+    def generate_requests(self, min_request_num: int, max_request_num: int) -> List[Request]:
         """
         Generates a random list of room requests.
         The number of requests is randomly chosen between min_request_num and max_request_num.
@@ -98,7 +98,7 @@ class ExperimentController:
 
         # Generate and append each request
         for _ in range(req_num):
-            requests.append(self._generateRequest())
+            requests.append(self.generate_request())
 
         return requests
 
@@ -124,9 +124,9 @@ class ExperimentController:
             return False
 
         # Generate room requests for the current step
-        self.requests = self.generateRequests(*self.request_num_per_step)
+        self.requests = self.generate_requests(*self.request_num_per_step)
         # Process the generated requests via the hotel instance
-        self.request_results = self.hotel.processRequests(self.requests)
+        self.request_results = self.hotel.process_requests(self.requests)
         # Retrieve the current occupancy status from the hotel
         current_occupancy = self.hotel.get_current_occupancy(self.current_day)
         # Update the simulation statistics with the new data
@@ -139,15 +139,15 @@ class ExperimentController:
 
         return True
 
-    def displayStatistics(self) -> str:
+    def display_statistics(self) -> str:
         """
         Retrieves a formatted string representation of the simulation statistics.
 
         :return: A string displaying the current simulation statistics.
         """
-        return self.statistics.displayStatistics()
+        return self.statistics.display_statistics()
     
-    def displayReservationInfo(self) -> str:
+    def display_reservation_info(self) -> str:
         """
         Builds a string describing each room request along with its reservation result.
         For each valid request, it includes the desired room type, reservation status,
@@ -158,9 +158,9 @@ class ExperimentController:
         display = ""
         # Loop through each request and its corresponding result
         for request, request_result in zip(self.requests, self.request_results):
-            if request.isRequest():
+            if request.is_request():
                 room_type, (checkIn, checkOut) = request.get_room_name(), request.get_time_info()
-                if request_result.isRoom():
+                if request_result.is_room():
                     # Successful reservation information
                     display += (
                         f"+/ Id : {request_result.get_id()} / Wanted : {room_type} / "
@@ -171,7 +171,7 @@ class ExperimentController:
                     display += f"-/ Wanted : {room_type} / In : {checkIn} / Out : {checkOut}\n"
         return display
 
-    def displayTodayOccupancy(self) -> str:
+    def display_today_occupancy(self) -> str:
         """
         Retrieves today's occupancy status for each room type.
         It returns a dictionary where each key is a RoomType and the value is a string
@@ -179,7 +179,7 @@ class ExperimentController:
 
         :return: A dictionary with room occupancy details for the current simulation day.
         """
-        occupancy = self.hotel.getTodayOccupancy(self.current_day)
+        occupancy = self.hotel.get_today_occupancy(self.current_day)
         room_numbers_each_type = self.hotel.get_room_info()
         display = dict()
 
@@ -189,7 +189,7 @@ class ExperimentController:
                 display[room_type] = f"{occupancy[room_type]}/{room_numbers_each_type[room_type]}"
         return display
 
-    def getTimeInfo(self) -> Tuple[int, int]:
+    def get_time_info(self) -> Tuple[int, int]:
         """
         Returns the current simulation time.
 
@@ -205,7 +205,7 @@ class ExperimentController:
         """
         return self.days, self.hour_per_step
     
-    def gotoEnd(self) -> None:
+    def goto_end(self) -> None:
         """
         Advances the simulation to its end state by processing a batch of room requests that simulate
         all remaining steps of the experiment. It calculates a total range of requests based on the 
@@ -216,9 +216,9 @@ class ExperimentController:
         total_min_steps = self.days * (24 // self.hour_per_step) * self.request_num_per_step[0]
         total_max_steps = self.days * (24 // self.hour_per_step) * self.request_num_per_step[1]
         # Generate a batch of requests covering the entire simulation duration
-        self.requests = self.generateRequests(total_min_steps, total_max_steps)
+        self.requests = self.generate_requests(total_min_steps, total_max_steps)
         # Process these requests using the hotel instance
-        self.request_results = self.hotel.processRequests(self.requests)
+        self.request_results = self.hotel.process_requests(self.requests)
         # Retrieve the occupancy status for the current day
         current_occupancy = self.hotel.get_current_occupancy(self.current_day)
 

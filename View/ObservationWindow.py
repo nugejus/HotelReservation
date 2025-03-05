@@ -121,8 +121,8 @@ class ObservationWindow(tk.Toplevel, GUI):
         Advances the experiment to its end state by processing all remaining simulation steps,
         and then updates the GUI with the final results.
         """
-        self.controller.gotoEnd()
-        self.updateScreen()
+        self.controller.goto_end()
+        self.update_screen()
 
     def terminate(self) -> None:
         """
@@ -149,18 +149,18 @@ class ObservationWindow(tk.Toplevel, GUI):
         self.occupancy_half_lux.delete(1.0, tk.END)
         self.occupancy_lux.delete(1.0, tk.END)
 
-    def endExperiment(self) -> None:
+    def end_experiment(self) -> None:
         """
         Called when the experiment finishes all its simulation steps.
         Displays the final statistics via a message box and terminates the program.
         """
         # Retrieve the final statistics from the controller (currently using displayStatistics as final stats)
-        final_stats = self.controller.displayStatistics()
+        final_stats = self.controller.display_statistics()
         messagebox.showinfo("Experiment Completed", f"Experiment has ended.\n\n{final_stats}")
         # Terminate both this window and the parent window
         self.terminate()
 
-    def updateScreen(self) -> None:
+    def update_screen(self) -> None:
         """
         Updates the entire observation window with the latest simulation data:
           - Reservation flow information.
@@ -172,11 +172,11 @@ class ObservationWindow(tk.Toplevel, GUI):
         self.delete()
 
         # Retrieve current simulation time (day and hour) and statistics from the controller
-        day, hour = self.controller.getTimeInfo()
-        statistics = self.controller.displayStatistics()
+        day, hour = self.controller.get_time_info()
+        statistics = self.controller.display_statistics()
         
         # Update the request flow information
-        self.flow_info.insert(tk.END, self.controller.displayReservationInfo())
+        self.flow_info.insert(tk.END, self.controller.display_reservation_info())
         
         # Update time-related fields
         self.time_today.insert(tk.END, day)
@@ -188,7 +188,7 @@ class ObservationWindow(tk.Toplevel, GUI):
         self.success_rate.insert(tk.END, statistics["success_rate"])
 
         # Update room occupancy information using data from the controller
-        room_occupancy = self.controller.displayTodayOccupancy()
+        room_occupancy = self.controller.display_today_occupancy()
         self.occupancy_single.insert(tk.END, room_occupancy[RoomType.SINGLE])
         self.occupancy_double.insert(tk.END, room_occupancy[RoomType.SIMPLE_DOUBLE])
         self.occupancy_double_sofa.insert(tk.END, room_occupancy[RoomType.DOUBLE_WITH_SOFA])
@@ -211,8 +211,8 @@ class ObservationWindow(tk.Toplevel, GUI):
 
         # If the simulation has ended, finish the experiment
         if not is_running:
-            self.endExperiment()
+            self.end_experiment()
             return
 
         # Otherwise, update the screen with the latest simulation data
-        self.updateScreen()
+        self.update_screen()

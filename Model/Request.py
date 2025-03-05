@@ -15,26 +15,26 @@ class Request:
         RoomType.DOUBLE_WITH_SOFA: "DOUBLE-SOFA"
     }
     
-    def __init__(self, roomType: RoomType, checkInDate: int, checkOutDate: int):
+    def __init__(self, room_type: RoomType, check_in_date: int, check_out_date: int):
         """
         Initializes a new Request object with the specified room type and date range.
         
         :param roomType: The desired RoomType for the request.
-        :param checkInDate: The starting day index (inclusive) for the stay.
-        :param checkOutDate: The ending day index (non-inclusive) for the stay.
+        :param check_in_date: The starting day index (inclusive) for the stay.
+        :param check_out_date: The ending day index (non-inclusive) for the stay.
         """
-        self.roomType = roomType            # The requested type of room.
-        self.checkInDate = checkInDate      # The day index when the stay begins.
-        self.checkOutDate = checkOutDate    # The day index when the stay ends.
+        self.room_type = room_type            # The requested type of room.
+        self.check_in_date = check_in_date      # The day index when the stay begins.
+        self.check_out_date = check_out_date    # The day index when the stay ends.
     
     # GETTERS
     def get_time_info(self) -> Tuple[int, int]:
         """
         Returns the check-in and check-out dates as a tuple.
         
-        :return: A tuple (checkInDate, checkOutDate) representing the period of the stay.
+        :return: A tuple (check_in_date, check_out_date) representing the period of the stay.
         """
-        return self.checkInDate, self.checkOutDate
+        return self.check_in_date, self.check_out_date
     
     def get_room_name(self) -> str:
         """
@@ -43,20 +43,20 @@ class Request:
         
         :return: A string that describes the room type.
         """
-        return Request.names_to_display[self.roomType]
+        return Request.names_to_display[self.room_type]
     
     def get_request_info(self) -> Tuple[RoomType, int, int]:
         """
         Returns all request details including room type, check-in date, and check-out date.
         
-        :return: A tuple (roomType, checkInDate, checkOutDate).
+        :return: A tuple (roomType, check_in_date, check_out_date).
         """
-        return self.roomType, self.checkInDate, self.checkOutDate
+        return self.room_type, self.check_in_date, self.check_out_date
     
-    def isRequest(self) -> bool:
+    def is_request(self) -> bool:
         """
         Determines if this Request is valid (i.e., not a dummy request with RoomType.NOT_A_ROOM).
         
         :return: True if the request is valid; otherwise, False.
         """
-        return self.roomType != RoomType.NOT_A_ROOM
+        return self.room_type != RoomType.NOT_A_ROOM

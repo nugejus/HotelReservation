@@ -36,35 +36,35 @@ class Room:
         # If the room is valid (i.e., not marked as NOT_A_ROOM), set its price and initialize its occupancy schedule.
         if self.type != RoomType.NOT_A_ROOM:
             self.price = Room.prices[room_type]
-            # occupancyDuration is a list of booleans indicating occupancy status for each day (True if occupied, False if free).
-            self.occupancyDuration = [False] * days
+            # occupancy_duration is a list of booleans indicating occupancy status for each day (True if occupied, False if free).
+            self.occupancy_duration = [False] * days
 
     # SETTERS
-    def checkIn(self, checkInDate: int, checkOutDate: int) -> Self:
+    def check_in(self, check_in_date: int, check_out_date: int) -> Self:
         """
-        Marks the room as occupied from checkInDate up to (but not including) checkOutDate.
+        Marks the room as occupied from check_in_date up to (but not including) check_out_date.
 
-        :param checkInDate: The starting day index for the stay.
-        :param checkOutDate: The ending day index (non-inclusive) for the stay.
+        :param check_in_date: The starting day index for the stay.
+        :param check_out_date: The ending day index (non-inclusive) for the stay.
         :return: The current Room instance (allows for method chaining if desired).
         """
-        for i in range(checkInDate, checkOutDate):
-            self.occupancyDuration[i] = True
+        for i in range(check_in_date, check_out_date):
+            self.occupancy_duration[i] = True
         return self
 
     # GETTERS
-    def isAvailable(self, checkInDate: int, checkOutDate: int) -> bool:
+    def is_available(self, check_in_date: int, check_out_date: int) -> bool:
         """
         Checks if the room is available (i.e., not occupied) for every day in the specified range.
 
-        :param checkInDate: The starting day index (inclusive).
-        :param checkOutDate: The ending day index (non-inclusive).
+        :param check_in_date: The starting day index (inclusive).
+        :param check_out_date: The ending day index (non-inclusive).
         :return: True if the room is valid and none of the days in the range are occupied; otherwise, False.
         """
         return (self.type != RoomType.NOT_A_ROOM and 
-                not any(self.occupancyDuration[checkInDate:checkOutDate]))
+                not any(self.occupancy_duration[check_in_date:check_out_date]))
 
-    def isRoom(self) -> bool:
+    def is_room(self) -> bool:
         """
         Determines if this object represents a valid room (not a dummy room).
 
@@ -72,15 +72,15 @@ class Room:
         """
         return self.type != RoomType.NOT_A_ROOM
 
-    def isOccupied(self, today: int) -> bool:
+    def is_occupied(self, today: int) -> bool:
         """
         Checks if the room is occupied on a given day.
 
         :param today: The day index to check occupancy.
         :return: True if the room is occupied on that day; otherwise, False.
         """
-        # Debugging code (commented out): print([("0" if b else "_") for b in self.occupancyDuration])
-        return self.occupancyDuration[today]
+        # Debugging code (commented out): print([("0" if b else "_") for b in self.occupancy_duration])
+        return self.occupancy_duration[today]
 
     def get_type(self) -> RoomType:
         """
@@ -90,15 +90,15 @@ class Room:
         """
         return self.type
 
-    def get_price(self, checkInDate: int, checkOutDate: int) -> int:
+    def get_price(self, check_in_date: int, check_out_date: int) -> int:
         """
         Calculates the total price for a stay over the specified date range.
 
-        :param checkInDate: The starting day index (inclusive).
-        :param checkOutDate: The ending day index (non-inclusive).
+        :param check_in_date: The starting day index (inclusive).
+        :param check_out_date: The ending day index (non-inclusive).
         :return: The total price computed as room price multiplied by the number of days.
         """
-        return self.price * (checkOutDate - checkInDate)
+        return self.price * (check_out_date - check_in_date)
 
     def get_id(self) -> int:
         """

@@ -29,7 +29,7 @@ class Hotel:
                 self.rooms.append(Room(i, room_type, days))
             c = c + numbers + 1  # Update the room ID counter with an extra gap.
 
-    def _processRequest(self, req: Request) -> Room:
+    def process_request(self, req: Request) -> Room:
         """
         Processes a single room request.
         It attempts to find an available room of the requested type and date range.
@@ -38,18 +38,18 @@ class Hotel:
         :param req: A Request object containing the room type, check-in date, and check-out date.
         :return: The Room object if a room is available and checked in; otherwise, a dummy Room (with NOT_A_ROOM type).
         """
-        roomType, checkInDate, checkOutDate = req.get_request_info()
-        room = self.checkAvailability(roomType, checkInDate, checkOutDate)
+        roomType, check_in_date, check_out_date = req.get_request_info()
+        room = self.check_availability(roomType, check_in_date, check_out_date)
         
         if room:
-            return room.checkIn(checkInDate, checkOutDate)
+            return room.check_in(check_in_date, check_out_date)
         else:
             # Return a dummy room indicating no available room was found.
             return Room(-1, RoomType.NOT_A_ROOM, -1)
         
-    def processRequests(self, requests: List[Request]) -> List[Room]:
+    def process_requests(self, requests: List[Request]) -> List[Room]:
         """
-        Processes a list of room requests by applying the _processRequest helper method to each request.
+        Processes a list of room requests by applying the process_request helper method to each request.
 
         :param requests: A list of Request objects.
         :return: A list of Room objects corresponding to the processed requests.
@@ -57,28 +57,28 @@ class Hotel:
         """
         process_results = []
         for request in requests:
-            process_results.append(self._processRequest(request))
+            process_results.append(self.process_request(request))
         return process_results
         
     # GETTERS
-    def checkAvailability(self, roomType: RoomType, checkInDate: int, checkOutDate: int) -> Optional[Room]:
+    def check_availability(self, roomType: RoomType, check_in_date: int, check_out_date: int) -> Optional[Room]:
         """
         Checks if there is an available room matching the requested room type and date range.
         If no room of the exact type is available, an upgrade to a higher room type is attempted.
 
         :param roomType: The requested RoomType.
-        :param checkInDate: The check-in day index (inclusive).
-        :param checkOutDate: The check-out day index (non-inclusive).
+        :param check_in_date: The check-in day index (inclusive).
+        :param check_out_date: The check-out day index (non-inclusive).
         :return: A Room object if one is available; otherwise, None.
         """
         # First, try to find a room of the exact requested type.
         for room in self.rooms:
-            if room.get_type() == roomType and room.isAvailable(checkInDate, checkOutDate):
+            if room.get_type() == roomType and room.is_available(check_in_date, check_out_date):
                 return room
         
         # If no room of the requested type is available, attempt to find an upgraded room type.
         for room in self.rooms:
-            if room.get_type() > roomType and room.isAvailable(checkInDate, checkOutDate):
+            if room.get_type() > roomType and room.is_available(check_in_date, check_out_date):
                 return room
         
         # No available room found.
@@ -96,16 +96,16 @@ class Hotel:
         """
         Counts the number of rooms that are occupied on a specific day.
 
-        :param today: The day index for checking occupancy.
+        :param today: The day index for check_ing occupancy.
         :return: The number of occupied rooms.
         """
         current_occupancy = 0
         for room in self.rooms:
-            # room.isOccupied(today) should return 1 if occupied, 0 otherwise.
-            current_occupancy += room.isOccupied(today)
+            # room.is_occupied(today) should return 1 if occupied, 0 otherwise.
+            current_occupancy += room.is_occupied(today)
         return current_occupancy
     
-    def getTodayOccupancy(self, today: int) -> DefaultDict[RoomType, int]:
+    def get_today_occupancy(self, today: int) -> DefaultDict[RoomType, int]:
         """
         Returns a dictionary mapping each RoomType to the number of occupied rooms for that type on the given day.
 
@@ -115,7 +115,7 @@ class Hotel:
         occupancy = defaultdict(int)
         
         for room in self.rooms:
-            occupancy[room.type] += room.isOccupied(today)
+            occupancy[room.type] += room.is_occupied(today)
         
         return occupancy
     
