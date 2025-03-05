@@ -72,14 +72,15 @@ class Room:
         """
         return self.type != RoomType.NOT_A_ROOM
 
-    def isFree(self, today) -> bool:
+    def isOccupied(self, today) -> bool:
         """
         Checks if the room is free (not occupied) on a given day.
 
         :param today: The day index to check occupancy.
         :return: True if the room is free that day; otherwise, False.
         """
-        return not self.occupancyDuration[today]
+        # print([("0" if b else "_") for b in self.occupancyDuration]) # Debugging code
+        return self.occupancyDuration[today]
 
     def get_type(self) -> RoomType:
         """

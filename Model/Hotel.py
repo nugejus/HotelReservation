@@ -91,7 +91,7 @@ class Hotel:
         """
         return len(self.rooms)
     
-    def get_current_occupancy(self, today : int) -> int:
+    def get_current_occupancy(self, today: int) -> int:
         """
         Counts how many rooms are occupied on a particular day.
 
@@ -100,10 +100,10 @@ class Hotel:
         """
         current_occupancy = 0
         for room in self.rooms:
-            current_occupancy += not room.isFree(today)
+            current_occupancy += room.isOccupied(today)
         return current_occupancy
     
-    def getTodayOccupancy(self, today : int) -> DefaultDict:
+    def getTodayOccupancy(self, today: int) -> DefaultDict:
         """
         Returns a dictionary that maps each RoomType to the occupancy count 
         (occupied rooms) for that type on the given day.
@@ -114,7 +114,8 @@ class Hotel:
         occupancy = defaultdict(int)
         
         for room in self.rooms:
-            occupancy[room.type] += not room.isFree(today)
+            occupancy[room.type] += room.isOccupied(today)
+        print()
         
         return occupancy
     

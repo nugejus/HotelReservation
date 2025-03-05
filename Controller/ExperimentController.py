@@ -6,14 +6,14 @@ from Model.Request import Request
 from typing import *
 T = TypeVar("T")
 
-class Experiment:
+class ExperimentController:
     """
     A class representing a simulation (experiment) of hotel room requests.
     It generates random requests, processes them through a Hotel instance,
     and updates statistics for each simulation step.
     """
 
-    def __init__(self, days : int, hour_per_step : int, rooms_info : Dict[RoomType, int]) -> None:
+    def __init__(self) -> None:
         """
         Initializes the experiment with the given parameters.
 
@@ -22,9 +22,17 @@ class Experiment:
         :param rooms_info: A dictionary mapping each RoomType to the count of rooms in the hotel.
         """
         # Simulation parameters
+        self.days = None                      # The total simulation duration in days
+        self.hour_per_step = None    # The number of hours per simulation step
+        self.hotel = None
+        self.request_num_per_step = None
+
+    def initialize_experiment(self, days, steps, rooms_info, request_num_per_step):
+        # Simulation parameters
         self.days = days                      # The total simulation duration in days
-        self.hour_per_step = hour_per_step    # The number of hours per simulation step
+        self.hour_per_step = steps    # The number of hours per simulation step
         self.hotel = Hotel(rooms_info, days)
+        self.request_num_per_step = request_num_per_step
 
         # Statistical data
         self.total_requests = 0              # Total requests generated so far
@@ -52,23 +60,25 @@ class Experiment:
         desired_room_type = random.choice(self.RoomTypes)
         duration_day = random.randint(1, 5)
 
-        checkInDate = self.current_day + random.randint(0, 10)
+        checkInDate = self.current_day + random.randint(0, self.days - self.current_day)
         checkOutDate = checkInDate + duration_day
+        if checkOutDate >= self.days:
+            checkOutDate = self.days
 
-        if checkInDate < self.days and checkOutDate < self.days:
+        if checkInDate < self.days and checkOutDate <= self.days:
             return Request(desired_room_type, checkInDate, checkOutDate)
         
         # Return an invalid request if the generated date range exceeds total simulation days
         return Request(RoomType.NOT_A_ROOM, -1, -1)
     
-    def generateRequests(self, max_request_num : int) -> List[Request]:
+    def generateRequests(self, min_request_num: int, max_request_num : int) -> List[Request]:
         """
         Generates a random number of requests (between 1 and max_request_num).
 
         :param max_request_num: Maximum number of requests to generate in one step.
         :return: A list of randomly generated Request objects.
         """
-        req_num = random.randint(1, max_request_num)
+        req_num = random.randint(min_request_num, max_request_num)
         requests = []
 
         for _ in range(req_num):
@@ -93,16 +103,16 @@ class Experiment:
             return False
 
         # Generate and process requests
-        self.requests = self.generateRequests(5)
+        self.requests = self.generateRequests(*self.request_num_per_step)
         self.request_results = self.hotel.processRequests(self.requests)
 
         # Update experiment statistics
         self._updateStatistics()
 
-        # Debugging code (prints occupancy info)
-        for room in self.hotel.rooms:
-            print(room.type, room.occupancyDuration)
-        print()
+        # # Debugging code (prints occupancy info)
+        # for room in self.hotel.rooms:
+        #     print(room.type, room.occupancyDuration)
+        # print()
 
         return True
 
@@ -115,16 +125,16 @@ class Experiment:
         for request, request_result in zip(self.requests, self.request_results):
             checkInDate, checkOutDate = request.get_time_info()
 
-            # If the room returned is valid (i.e., isAvailable(0, 0) returns True),
+            # If the room returned is valid,
             # we consider it a successful reservation.
-            if request_result.isAvailable(0, 0):
+            if request_result.isRoom():
                 self.succesed_requests += 1
                 self.profit += request_result.get_price(checkInDate, checkOutDate)
 
         self.success_rate = (self.succesed_requests / self.total_requests) * 100
 
         self.total_occupancy_today = (self.hotel.get_current_occupancy(self.current_day) / self.hotel.get_room_numbers()) * 100
-        self.sum_occupancy += self.total_occupancy_today
+        self.sum_occupancy += round(self.total_occupancy_today,2)
         self.avg_occupancy = self.sum_occupancy / self.occupancy_count
         self.occupancy_count += 1
 
@@ -180,3 +190,14 @@ class Experiment:
 
     def get_init_info(self):
         return self.days, self.hour_per_step
+    
+    def gotoEnd(self):
+        total_min_steps = self.days * (24 // self.hour_per_step) * self.request_num_per_step[0]
+        total_max_steps = self.days * (24 // self.hour_per_step) * self.request_num_per_step[1]
+        self.requests = self.generateRequests(total_min_steps, total_max_steps)
+        self.request_results = self.hotel.processRequests(self.requests)
+
+        self.current_day = self.days - 1
+        self.current_hour = 23
+
+        self._updateStatistics()

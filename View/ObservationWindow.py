@@ -58,9 +58,9 @@ class ObservationWindow(tk.Toplevel, GUI):
         # ---- Statistics ----
         tk.Label(left_frame, text="Statistics", font=("Arial", 10, "underline")).grid(row=3, pady=5)
 
-        tk.Label(left_frame, text="Mean occupancy today:").grid(row=4, column=0, pady=2)
+        tk.Label(left_frame, text="Average occupancy:").grid(row=4, column=0, pady=2)
         tk.Label(left_frame, text="Profit:").grid(row=5, column=0, pady=2)
-        tk.Label(left_frame, text="Successful request percentage:").grid(row=6, column=0, pady=2)
+        tk.Label(left_frame, text="Successful request %:").grid(row=6, column=0, pady=2)
 
         self.avg_occupancy = tk.Text(left_frame, height=1, width=5)
         self.profit = tk.Text(left_frame, height=1, width=5)
@@ -111,11 +111,19 @@ class ObservationWindow(tk.Toplevel, GUI):
         bottom_frame = tk.Frame(self)
         bottom_frame.pack(side=tk.BOTTOM, fill=tk.X, padx=10, pady=5)
 
-        self.btn_step = tk.Button(bottom_frame, text="Next step", command=self.next_stage)
-        self.btn_step.pack(side=tk.LEFT, padx=5)
+        self.btn_step = tk.Button(bottom_frame, text="Next step", command=self.next_stage, width=7)
+        self.btn_step.pack(padx=5)
 
-        self.btn_exit = tk.Button(bottom_frame, text="Exit", command=self.terminate)
-        self.btn_exit.pack(side=tk.RIGHT, padx=5)
+        self.btn_exit = tk.Button(bottom_frame, text="Exit", command=self.terminate, width=7)
+        self.btn_exit.pack(padx=5)
+
+        self.btn_goto_end = tk.Button(bottom_frame, text = "Goto End", command = self.goto_end, width=7)
+        self.btn_goto_end.pack(padx=5)
+
+    def goto_end(self) -> None:
+        self.controller.gotoEnd()
+        self.updateScreen()
+
     
     def terminate(self) -> None:
         """
@@ -152,12 +160,40 @@ class ObservationWindow(tk.Toplevel, GUI):
         # you could implement something like experiment.displayFinalStatistics() in Experiment.
         # For now, we'll just reuse the current statistics as an example.
         
-        final_stats = self.controller.get_statistics()  # Using current stats as final result
+        final_stats = self.controller.displayStatistics()  # Using current stats as final result
         messagebox.showinfo("Experiment Completed", f"Experiment has ended.\n\n{final_stats}")
         
         # Close this window and end the program
         self.terminate()
 
+    def updateScreen(self) -> None:
+        self.delete()
+
+        # Otherwise, update the UI with the latest data
+        day, hour = self.controller.getTimeInfo()
+        statistics = self.controller.displayStatistics()
+        
+        # Insert reservation (request) info into the flow_info text box
+        self.flow_info.insert(tk.END, self.controller.displayReservationInfo())
+        
+        # Time-related info
+        self.time_today.insert(tk.END, day)
+        self.time_now.insert(tk.END, hour)
+
+        # Statistics info
+        self.avg_occupancy.insert(tk.END, statistics["avg_occupancy"])
+        self.profit.insert(tk.END, statistics["profit"])
+        self.success_rate.insert(tk.END, statistics["success_rate"])
+
+        # Room occupancy info
+        room_occupancy = self.controller.displayTodayOccupancy()
+        self.occupancy_single.insert(tk.END, room_occupancy[RoomType.SINGLE])
+        self.occupancy_double.insert(tk.END, room_occupancy[RoomType.SIMPLE_DOUBLE])
+        self.occupancy_double_sofa.insert(tk.END, room_occupancy[RoomType.DOUBLE_WITH_SOFA])
+        self.occupancy_half_lux.insert(tk.END, room_occupancy[RoomType.HALF_LUX])
+        self.occupancy_lux.insert(tk.END, room_occupancy[RoomType.LUX])
+
+    
     def next_stage(self) -> None:
         """
         Called when the 'Next step' button is clicked.
@@ -174,26 +210,4 @@ class ObservationWindow(tk.Toplevel, GUI):
             self.endExperiment()
             return
 
-        # Otherwise, update the UI with the latest data
-        day, hour = self.controller.get_time_info()
-        statistics = self.controller.get_statistics()
-        
-        # Insert reservation (request) info into the flow_info text box
-        self.flow_info.insert(tk.END, self.controller.get_reservation_info())
-        
-        # Time-related info
-        self.time_today.insert(tk.END, day)
-        self.time_now.insert(tk.END, hour)
-
-        # Statistics info
-        self.avg_occupancy.insert(tk.END, statistics["avg_occupancy"])
-        self.profit.insert(tk.END, statistics["profit"])
-        self.success_rate.insert(tk.END, statistics["success_rate"])
-
-        # Room occupancy info
-        room_occupancy = self.controller.get_today_occupancy()
-        self.occupancy_single.insert(tk.END, room_occupancy[RoomType.SINGLE])
-        self.occupancy_double.insert(tk.END, room_occupancy[RoomType.SIMPLE_DOUBLE])
-        self.occupancy_double_sofa.insert(tk.END, room_occupancy[RoomType.DOUBLE_WITH_SOFA])
-        self.occupancy_half_lux.insert(tk.END, room_occupancy[RoomType.HALF_LUX])
-        self.occupancy_lux.insert(tk.END, room_occupancy[RoomType.LUX])
+        self.updateScreen()
