@@ -60,3 +60,6 @@ class Request:
         :return: True if the request is valid; otherwise, False.
         """
         return self.room_type != RoomType.NOT_A_ROOM
+
+    def get_type(self) -> RoomType:
+        return self.room_type

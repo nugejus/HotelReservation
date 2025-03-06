@@ -35,21 +35,22 @@ class Statistics:
 
         # Process each request and its corresponding result.
         for request, request_result in zip(requests, request_results):
-            checkInDate, checkOutDate = request.get_time_info()
+            check_in_date, check_out_date = request.get_time_info()
 
             # If the result represents a valid room (reservation successful),
             # count it as a successful reservation and add the price for the stay.
             if request_result.is_room():
                 self.succesed_requests += 1
-                self.profit += request_result.get_price(checkInDate, checkOutDate)
+                cost = request_result.get_price(check_in_date, check_out_date)
+                self.profit += cost if request.get_type() == request_result.get_type() else cost *0.7 # 70% discount
 
         # Calculate the success rate as the percentage of successful requests.
         self.success_rate = (self.succesed_requests / self.total_requests) * 100
 
         # Compute today's occupancy percentage based on the current occupancy.
-        self.total_occupancy_today = (current_occupancy / self.total_room_count) * 100
+        occupancy_today = (current_occupancy / self.total_room_count) * 100
         # Add the current occupancy percentage (rounded to 2 decimals) to the sum.
-        self.sum_occupancy += round(self.total_occupancy_today, 2)
+        self.sum_occupancy += round(occupancy_today, 2)
         # Calculate the average occupancy over the updates so far.
         self.avg_occupancy = self.sum_occupancy / self.occupancy_count
         # Increment the count of occupancy updates.
@@ -67,3 +68,23 @@ class Statistics:
             "profit": self.profit,
             "success_rate": self.success_rate
         }
+
+    def goto_end(self, requests: List[Request], request_results: List[Room], remaining_occupancy:List[int]) -> None:
+        self.total_requests += len(requests)
+
+        # Process each request and its corresponding result.
+        for request, request_result in zip(requests, request_results):
+            check_in_date, check_out_date = request.get_time_info()
+
+            # If the result represents a valid room (reservation successful),
+            # count it as a successful reservation and add the price for the stay.
+            if request_result.is_room():
+                self.succesed_requests += 1
+                cost = request_result.get_price(check_in_date, check_out_date)
+                self.profit += cost if request.get_type() == request_result.get_type() else cost *0.7 # 70% discount
+        
+        for oc in remaining_occupancy:
+            occuapncy_i = (oc / self.total_room_count) * 100
+            self.sum_occupancy += round(occuapncy_i, 2)
+            self.avg_occupancy = self.sum_occupancy / self.occupancy_count
+            self.occupancy_count += 1

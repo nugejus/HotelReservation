@@ -69,16 +69,16 @@ class ExperimentController:
         duration_day = random.randint(1, 5)
 
         # Randomly determine a check-in date between the current day and the end of the simulation
-        checkInDate = self.current_day + random.randint(0, self.days - self.current_day)
+        check_in_date = self.current_day + random.randint(0, self.days - self.current_day)
         # Calculate check-out date based on the duration
-        checkOutDate = checkInDate + duration_day
+        check_out_date = check_in_date + duration_day
         # Clamp check-out date to the simulation limit if necessary
-        if checkOutDate >= self.days:
-            checkOutDate = self.days
+        if check_out_date >= self.days:
+            check_out_date = self.days
 
         # Return a valid request if the check-in and check-out dates are within simulation bounds
-        if checkInDate < self.days and checkOutDate <= self.days:
-            return Request(desired_room_type, checkInDate, checkOutDate)
+        if check_in_date < self.days and check_out_date <= self.days:
+            return Request(desired_room_type, check_in_date, check_out_date)
         
         # Otherwise, return an invalid/dummy request indicating an out-of-range request
         return Request(RoomType.NOT_A_ROOM, -1, -1)
@@ -212,19 +212,26 @@ class ExperimentController:
         simulation parameters, processes them, updates the occupancy, and sets the current time to 
         the final day at 23:00 hours.
         """
-        # Calculate the minimum and maximum total number of requests over the entire simulation period
-        total_min_steps = self.days * (24 // self.hour_per_step) * self.request_num_per_step[0]
-        total_max_steps = self.days * (24 // self.hour_per_step) * self.request_num_per_step[1]
+        steps_per_day = 24 // self.hour_per_step
+        total_steps = self.days * steps_per_day
+        completed_steps = self.current_day * steps_per_day + (self.current_hour // self.hour_per_step)
+        
+        remaining_steps = total_steps - completed_steps
+        remaining_min_requests = remaining_steps * self.request_num_per_step[0]
+        remaining_max_requests = remaining_steps * self.request_num_per_step[1]
+
         # Generate a batch of requests covering the entire simulation duration
-        self.requests = self.generate_requests(total_min_steps, total_max_steps)
+        self.requests = self.generate_requests(remaining_min_requests, remaining_max_requests)
         # Process these requests using the hotel instance
         self.request_results = self.hotel.process_requests(self.requests)
-        # Retrieve the occupancy status for the current day
-        current_occupancy = self.hotel.get_current_occupancy(self.current_day)
+
+        remaining_occupancy = []
+        for i in range(self.days - self.current_day):
+            remaining_occupancy.append(self.hotel.get_current_occupancy(self.current_day + i))
+
+        # Update the statistics with the final requests and occupancy data
+        self.statistics.goto_end(self.requests, self.request_results, remaining_occupancy)
 
         # Set simulation time to the final day (last day at 23:00)
         self.current_day = self.days - 1
         self.current_hour = 23
-
-        # Update the statistics with the final requests and occupancy data
-        self.statistics.update(self.requests, self.request_results, current_occupancy)
