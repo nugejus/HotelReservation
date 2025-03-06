@@ -1,4 +1,5 @@
 /.env
-/Controller/__pycache__
-/Model/__pycache__
-/View/__pycache__
+/Controller/__pycache__/
+/Model/__pycache__/
+/View/__pycache__/
+/todo
