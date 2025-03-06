@@ -82,6 +82,9 @@ class Statistics:
                 self.succesed_requests += 1
                 cost = request_result.get_price(check_in_date, check_out_date)
                 self.profit += cost if request.get_type() == request_result.get_type() else cost *0.7 # 70% discount
+                
+        # Calculate the success rate as the percentage of successful requests.
+        self.success_rate = (self.succesed_requests / self.total_requests) * 100
         
         for oc in remaining_occupancy:
             occuapncy_i = (oc / self.total_room_count) * 100

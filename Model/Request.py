@@ -62,4 +62,9 @@ class Request:
         return self.room_type != RoomType.NOT_A_ROOM
 
     def get_type(self) -> RoomType:
+        """
+        Returns the room type.
+        
+        :return: A RoomType object.
+        """
         return self.room_type
