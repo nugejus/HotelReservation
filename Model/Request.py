@@ -1,5 +1,5 @@
 from Model.RoomType import RoomType
-from typing import *
+from typing import Tuple, Any
 
 class Request:
     """
@@ -15,19 +15,18 @@ class Request:
         RoomType.DOUBLE_WITH_SOFA: "DOUBLE-SOFA"
     }
     
-    def __init__(self, room_type: RoomType, check_in_date: int, check_out_date: int):
+    def __init__(self, room_type: RoomType, check_in_date: int, check_out_date: int) -> None:
         """
         Initializes a new Request object with the specified room type and date range.
         
-        :param roomType: The desired RoomType for the request.
+        :param room_type: The desired RoomType for the request.
         :param check_in_date: The starting day index (inclusive) for the stay.
         :param check_out_date: The ending day index (non-inclusive) for the stay.
         """
-        self.room_type = room_type            # The requested type of room.
-        self.check_in_date = check_in_date      # The day index when the stay begins.
-        self.check_out_date = check_out_date    # The day index when the stay ends.
+        self.room_type = room_type          # The requested type of room.
+        self.check_in_date = check_in_date  # The day index when the stay begins.
+        self.check_out_date = check_out_date  # The day index when the stay ends.
     
-    # GETTERS
     def get_time_info(self) -> Tuple[int, int]:
         """
         Returns the check-in and check-out dates as a tuple.
@@ -49,7 +48,7 @@ class Request:
         """
         Returns all request details including room type, check-in date, and check-out date.
         
-        :return: A tuple (roomType, check_in_date, check_out_date).
+        :return: A tuple (room_type, check_in_date, check_out_date).
         """
         return self.room_type, self.check_in_date, self.check_out_date
     
@@ -65,6 +64,6 @@ class Request:
         """
         Returns the room type.
         
-        :return: A RoomType object.
+        :return: A RoomType object representing the type of the requested room.
         """
         return self.room_type

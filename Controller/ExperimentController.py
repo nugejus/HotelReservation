@@ -7,6 +7,7 @@ from Model.Statistics import Statistics
 from typing import *
 T = TypeVar("T")
 
+
 class ExperimentController:
     """
     A class representing a simulation (experiment) of hotel room requests.
@@ -48,7 +49,7 @@ class ExperimentController:
         self.hour_per_step = steps            # Number of hours per simulation step
         self.request_num_per_step = request_num_per_step
 
-        # Create Hotel and Statistics instances based on room info and simulation duration
+        # Create Hotel instance based on room information and simulation duration
         self.hotel = Hotel(rooms_info, days)
 
     def generate_request(self) -> Request:
@@ -61,26 +62,26 @@ class ExperimentController:
         
         :return: A Request object representing the generated room request.
         """
-        # Randomly choose a valid room type
+        # Randomly choose a valid room type from the available types.
         desired_room_type = random.choice(self.RoomTypes)
-        # Determine a random duration of stay (between 1 and 5 days)
+        # Determine a random duration of stay between 1 and 5 days.
         duration_day = random.randint(1, 5)
 
-        # Randomly determine a check-in date between the current day and the end of the simulation
+        # Randomly select a check-in date starting from the current day up to the end of simulation.
         check_in_date = self.current_day + random.randint(0, self.days - self.current_day)
-        # Calculate check-out date based on the duration
+        # Calculate the check-out date based on the duration of stay.
         check_out_date = check_in_date + duration_day
-        # Clamp check-out date to the simulation limit if necessary
+        # Clamp the check-out date to the simulation limit if it exceeds the total days.
         if check_out_date >= self.days:
             check_out_date = self.days
 
-        # Return a valid request if the check-in and check-out dates are within simulation bounds
+        # Return a valid request if the check-in and check-out dates fall within simulation bounds.
         if check_in_date < self.days and check_out_date <= self.days:
             return Request(desired_room_type, check_in_date, check_out_date)
         
-        # Otherwise, return an invalid/dummy request indicating an out-of-range request
+        # Otherwise, return a dummy request indicating an out-of-range request.
         return Request(RoomType.NOT_A_ROOM, -1, -1)
-    
+
     def generate_requests(self, min_request_num: int, max_request_num: int) -> List[Request]:
         """
         Generates a random list of room requests.
@@ -90,11 +91,11 @@ class ExperimentController:
         :param max_request_num: Maximum number of requests to generate in one step.
         :return: A list of randomly generated Request objects.
         """
-        # Randomly determine the number of requests for this simulation step
+        # Determine the number of requests to generate for this simulation step.
         req_num = random.randint(min_request_num, max_request_num)
         requests = []
 
-        # Generate and append each request
+        # Generate each request and add it to the list.
         for _ in range(req_num):
             requests.append(self.generate_request())
 
@@ -110,20 +111,20 @@ class ExperimentController:
 
         :return: False if the simulation has reached the final day; otherwise, True.
         """
-        # Increment the current hour by the simulation step interval
+        # Increment the current hour by the simulation step interval.
         self.current_hour += self.hour_per_step
-        # If the current hour exceeds or equals 24, move to the next day
+        # If the current hour is 24 or more, advance to the next day and adjust the hour.
         if self.current_hour >= 24:
             self.current_day += 1
             self.current_hour -= 24
 
-        # If the final day is reached, end the simulation
+        # If the simulation has reached the final day, stop the simulation.
         if self.current_day == self.days:
             return False
 
-        # Generate room requests for the current step
+        # Generate room requests for the current simulation step.
         self.requests = self.generate_requests(*self.request_num_per_step)
-        # Process the generated requests via the hotel instance
+        # Process the generated requests using the Hotel instance; pass the current day for context.
         self.request_results = self.hotel.process_requests(self.requests, self.current_day)
 
         return True
@@ -135,29 +136,31 @@ class ExperimentController:
         :return: A string displaying the current simulation statistics.
         """
         return self.hotel.get_statistics()
-    
+
     def display_reservation_info(self) -> str:
         """
         Builds a string describing each room request along with its reservation result.
         For each valid request, it includes the desired room type, reservation status,
-        and check-in/check-out dates.
+        check-in/check-out dates, and cost information. If a discount is applied, it notes that.
 
         :return: A formatted string with reservation details for each request.
         """
         display = ""
-        # Loop through each request and its corresponding result
+        # Loop through each request and its corresponding result.
         for request, (cost, request_result) in zip(self.requests, self.request_results):
             if request.is_request():
+                # Get the room type's friendly name and the time info (check-in and check-out dates).
                 room_type, (checkIn, checkOut) = request.get_room_name(), request.get_time_info()
                 if request_result.is_room():
-                    # Successful reservation information
+                    # Append information about the successful reservation.
                     display += (
                         f"+/ Id : {request_result.get_id()} / Wanted : {room_type} / "
                         f"Reserved : {request_result.get_type_name()} / In {checkIn} / Out {checkOut} / Cost {cost}"
                     )
+                    # If the reserved room type is different from the requested type, note a discount.
                     display += "/ Discounted(70%)\n" if request.get_type() != request_result.get_type() else "\n"
                 else:
-                    # Failed reservation information
+                    # Append information about the failed reservation.
                     display += f"-/ Wanted : {room_type} / In : {checkIn} / Out : {checkOut}\n"
         return display
 
@@ -169,11 +172,13 @@ class ExperimentController:
 
         :return: A dictionary with room occupancy details for the current simulation day.
         """
+        # Get the occupancy counts for the current day.
         occupancy = self.hotel.get_today_occupancy(self.current_day)
+        # Get the total room numbers for each room type.
         room_numbers_each_type = self.hotel.get_room_info()
         display = dict()
 
-        # Build occupancy info for each valid room type
+        # Build a display string for each valid room type.
         for room_type in RoomType:
             if room_type != RoomType.NOT_A_ROOM:
                 display[room_type] = f"{occupancy[room_type]}/{room_numbers_each_type[room_type]}"
@@ -183,7 +188,7 @@ class ExperimentController:
         """
         Returns the current simulation time.
 
-        :return: A tuple containing the current day and current hour.
+        :return: A tuple containing the current day (1-indexed) and the current hour formatted as a string.
         """
         return f"{self.current_day + 1}", f"{self.current_hour}:00"
 
@@ -194,27 +199,31 @@ class ExperimentController:
         :return: A tuple containing the total simulation days and the number of hours per simulation step.
         """
         return self.days, self.hour_per_step
-    
+
     def goto_end(self) -> None:
         """
         Advances the simulation to its end state by processing a batch of room requests that simulate
-        all remaining steps of the experiment. It calculates a total range of requests based on the 
-        simulation parameters, processes them, updates the occupancy, and sets the current time to 
-        the final day at 23:00 hours.
+        all remaining steps of the experiment. It calculates the remaining number of simulation steps based on
+        the current day and hour, generates a batch of requests for those remaining steps, processes them,
+        updates the occupancy, and sets the simulation time to the final day at 23:00 hours.
         """
+        # Calculate the number of steps per day.
         steps_per_day = 24 // self.hour_per_step
+        # Calculate the total number of simulation steps.
         total_steps = self.days * steps_per_day
+        # Calculate the number of steps that have been completed so far.
         completed_steps = self.current_day * steps_per_day + (self.current_hour // self.hour_per_step)
-        
+        # Determine the remaining number of steps.
         remaining_steps = total_steps - completed_steps
+        # Calculate the minimum and maximum number of requests for the remaining steps.
         remaining_min_requests = remaining_steps * self.request_num_per_step[0]
         remaining_max_requests = remaining_steps * self.request_num_per_step[1]
 
-        # Generate a batch of requests covering the entire simulation duration
+        # Generate a batch of requests covering the remaining simulation period.
         self.requests = self.generate_requests(remaining_min_requests, remaining_max_requests)
-        # Process these requests using the hotel instance
+        # Process these requests using the Hotel instance, providing the current day.
         self.request_results = self.hotel.process_requests(self.requests, self.current_day)
 
-        # Set simulation time to the final day (last day at 23:00)
+        # Set simulation time to the final day at 23:00.
         self.current_day = self.days - 1
         self.current_hour = 23
