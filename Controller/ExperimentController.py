@@ -26,7 +26,6 @@ class ExperimentController:
         self.request_num_per_step = None      # Tuple (min_requests, max_requests) per simulation step
 
         self.hotel = None                     # Hotel instance to process room requests
-        self.statistics = None                # Statistics instance to track simulation data
 
         self.current_hour = 0                 # Current simulation hour
         self.current_day = 0                  # Current simulation day
@@ -51,7 +50,6 @@ class ExperimentController:
 
         # Create Hotel and Statistics instances based on room info and simulation duration
         self.hotel = Hotel(rooms_info, days)
-        self.statistics = Statistics(self.hotel.get_room_numbers())
 
     def generate_request(self) -> Request:
         """
@@ -126,16 +124,7 @@ class ExperimentController:
         # Generate room requests for the current step
         self.requests = self.generate_requests(*self.request_num_per_step)
         # Process the generated requests via the hotel instance
-        self.request_results = self.hotel.process_requests(self.requests)
-        # Retrieve the current occupancy status from the hotel
-        current_occupancy = self.hotel.get_current_occupancy(self.current_day)
-        # Update the simulation statistics with the new data
-        self.statistics.update(self.requests, self.request_results, current_occupancy)
-
-        # Debugging code to print occupancy info (currently commented out)
-        # for room in self.hotel.rooms:
-        #     print(room.type, room.occupancyDuration)
-        # print()
+        self.request_results = self.hotel.process_requests(self.requests, self.current_day)
 
         return True
 
@@ -145,7 +134,8 @@ class ExperimentController:
 
         :return: A string displaying the current simulation statistics.
         """
-        return self.statistics.display_statistics()
+        # return self.statistics.display_statistics()
+        return self.hotel.get_statistics()
     
     def display_reservation_info(self) -> str:
         """
@@ -189,13 +179,13 @@ class ExperimentController:
                 display[room_type] = f"{occupancy[room_type]}/{room_numbers_each_type[room_type]}"
         return display
 
-    def get_time_info(self) -> Tuple[int, int]:
+    def get_time_info(self) -> Tuple[str, str]:
         """
         Returns the current simulation time.
 
         :return: A tuple containing the current day and current hour.
         """
-        return self.current_day, self.current_hour
+        return f"{self.current_day + 1}", f"{self.current_hour}:00"
 
     def get_init_info(self) -> Tuple[int, int]:
         """
@@ -223,14 +213,7 @@ class ExperimentController:
         # Generate a batch of requests covering the entire simulation duration
         self.requests = self.generate_requests(remaining_min_requests, remaining_max_requests)
         # Process these requests using the hotel instance
-        self.request_results = self.hotel.process_requests(self.requests)
-
-        remaining_occupancy = []
-        for i in range(self.days - self.current_day):
-            remaining_occupancy.append(self.hotel.get_current_occupancy(self.current_day + i))
-
-        # Update the statistics with the final requests and occupancy data
-        self.statistics.goto_end(self.requests, self.request_results, remaining_occupancy)
+        self.request_results = self.hotel.process_requests(self.requests, self.current_day)
 
         # Set simulation time to the final day (last day at 23:00)
         self.current_day = self.days - 1

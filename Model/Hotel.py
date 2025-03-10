@@ -1,6 +1,7 @@
 from Model.Room import Room
 from Model.Request import Request
 from Model.RoomType import RoomType
+from Model.Statistics import Statistics
 
 from collections import defaultdict
 from typing import *
@@ -29,6 +30,8 @@ class Hotel:
                 self.rooms.append(Room(i, room_type, days))
             c = c + numbers + 1  # Update the room ID counter with an extra gap.
 
+        self.statsitics = Statistics(len(self.rooms))
+
     def process_request(self, req: Request) -> Room:
         """
         Processes a single room request.
@@ -47,7 +50,7 @@ class Hotel:
             # Return a dummy room indicating no available room was found.
             return Room(-1, RoomType.NOT_A_ROOM, -1)
         
-    def process_requests(self, requests: List[Request]) -> List[Room]:
+    def process_requests(self, requests: List[Request], today: int) -> List[Room]:
         """
         Processes a list of room requests by applying the process_request helper method to each request.
 
@@ -58,6 +61,10 @@ class Hotel:
         process_results = []
         for request in requests:
             process_results.append(self.process_request(request))
+
+        self.statsitics.update(requests=requests, 
+                               request_results=process_results, 
+                               current_occupancy=self.get_current_occupancy(today))
         return process_results
         
     # GETTERS
@@ -126,3 +133,6 @@ class Hotel:
         :return: A dictionary mapping RoomType to the count of rooms of that type.
         """
         return self.rooms_info
+
+    def get_statistics(self) -> str:
+        return self.statsitics.display_statistics()

@@ -21,26 +21,26 @@ class InitWindow(GUI):
         self.controller = ExperimentController()
 
         # Set the window title.
-        self.title("Initialize Experiment")
+        self.title("Initialize Experiment (Hotel Reservation)")
 
         # Set the size of the window (width x height).
-        self.geometry("400x250")
+        self.geometry("550x250")
 
         # --- Top Labels ---
         # Create a label for time-related input information.
         tk.Label(self, text="Time Info").grid(row=0, columnspan=2)
         # Create a label for request number input with a hint of the valid range.
-        tk.Label(self, text="Request Num(1-6)").grid(row=0, column=2, columnspan=2)
+        tk.Label(self, text="The number of requests(1-6)").grid(row=0, column=2, columnspan=2)
 
         # --- Input Fields for Time Parameters ---
         # Create label and entry for total experiment days with a valid range hint.
-        tk.Label(self, text="Days(12-30):").grid(row=1, column=0, padx=10, pady=5, sticky="w")
+        tk.Label(self, text="Experiment duration day(12-30):").grid(row=1, column=0, padx=10, pady=5, sticky="w")
         self.entry_days = tk.Entry(self, width=5)
         self.entry_days.grid(row=1, column=1, padx=10, pady=5)
         self.entry_days.insert(0, "20")  # Default value
 
         # Create label and entry for steps per day with a valid range hint.
-        tk.Label(self, text="Steps(1-5):").grid(row=2, column=0, padx=10, pady=5, sticky="w")
+        tk.Label(self, text="Hour per step(1-5):").grid(row=2, column=0, padx=10, pady=5, sticky="w")
         self.entry_step = tk.Entry(self, width=5)
         self.entry_step.grid(row=2, column=1, padx=10, pady=5)
         self.entry_step.insert(0, "3")  # Default value
@@ -58,7 +58,7 @@ class InitWindow(GUI):
 
         # --- Input Fields for Room Numbers ---
         # Create a label indicating room numbers must be provided for each room type.
-        tk.Label(self, text="Room numbers(4-6 for each room)").grid(
+        tk.Label(self, text="The number of rooms(4-6 for each room)").grid(
             row=3, column=1, columnspan=2, padx=10, pady=10, sticky="e"
         )
         # Create labels for each room type.

@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import scrolledtext
 
 from Model.RoomType import RoomType
 from View.GUI import GUI
@@ -22,7 +23,7 @@ class ObservationWindow(tk.Toplevel, GUI):
         self.controller = controller
 
         # Set the window title and size
-        self.title("Experiment Observation")
+        self.title("Experiment Observation(Hotel booking and check-in support system)")
         self.geometry("1200x400")
 
         # ========= Top Label (Displays initial experiment settings) =========
@@ -33,7 +34,7 @@ class ObservationWindow(tk.Toplevel, GUI):
         days, step = self.controller.get_init_info()
         self.lbl_experiment_info = tk.Label(
             top_frame,
-            text=f"Total day = {days} days, hour per step = {step} hour",
+            text=f"Total days = {days} day, hour per step = {step} hours",
             font=("Arial", 11, "bold")
         )
         self.lbl_experiment_info.pack(side=tk.LEFT)
@@ -44,8 +45,8 @@ class ObservationWindow(tk.Toplevel, GUI):
 
         # ---- Time Information ----
         tk.Label(left_frame, text="Time Info", font=("Arial", 10, "underline")).grid(row=0, column=0, pady=5)
-        tk.Label(left_frame, text="Today:").grid(row=1, column=0, pady=2)
-        tk.Label(left_frame, text="Now:").grid(row=2, column=0, pady=2)
+        tk.Label(left_frame, text="Date:").grid(row=1, column=0, pady=2)
+        tk.Label(left_frame, text="Time:").grid(row=2, column=0, pady=2)
 
         # Text widgets to display the current simulation day and hour
         self.time_today = tk.Text(left_frame, height=1, width=5)
@@ -76,7 +77,7 @@ class ObservationWindow(tk.Toplevel, GUI):
         flow_frame.pack(side=tk.TOP, fill=tk.BOTH)
         tk.Label(flow_frame, text="Request Flow", font=("Arial", 10, "underline")).grid(row=0, pady=5)
         # Text widget to display the flow of reservation requests and their outcomes
-        self.flow_info = tk.Text(flow_frame, height=10, width=100)
+        self.flow_info = scrolledtext.ScrolledText(flow_frame, height=10, width=100)
         self.flow_info.grid(row=1)
 
         # ---- Room Occupancy Information Section ----
@@ -115,6 +116,8 @@ class ObservationWindow(tk.Toplevel, GUI):
         # Button to jump to the final state of the simulation
         self.btn_goto_end = tk.Button(bottom_frame, text="Goto End", command=self.goto_end, width=7)
         self.btn_goto_end.pack(padx=5)
+
+        self.mode_change_text_box("disabled")
 
     def goto_end(self) -> None:
         """
@@ -160,6 +163,19 @@ class ObservationWindow(tk.Toplevel, GUI):
         # Terminate both this window and the parent window
         self.terminate()
 
+    def mode_change_text_box(self, mode):
+        self.flow_info.config(state = mode)
+        self.time_today.config(state = mode)
+        self.time_now.config(state = mode)
+        self.avg_occupancy.config(state = mode)
+        self.profit.config(state = mode)
+        self.success_rate.config(state = mode)
+        self.occupancy_single.config(state = mode)
+        self.occupancy_double.config(state = mode)
+        self.occupancy_double_sofa.config(state = mode)
+        self.occupancy_half_lux.config(state = mode)
+        self.occupancy_lux.config(state = mode)
+
     def update_screen(self) -> None:
         """
         Updates the entire observation window with the latest simulation data:
@@ -169,6 +185,7 @@ class ObservationWindow(tk.Toplevel, GUI):
           - Occupancy details per room type.
         """
         # Clear all existing data in the text widgets
+        self.mode_change_text_box("normal")
         self.delete()
 
         # Retrieve current simulation time (day and hour) and statistics from the controller
@@ -194,6 +211,8 @@ class ObservationWindow(tk.Toplevel, GUI):
         self.occupancy_double_sofa.insert(tk.END, room_occupancy[RoomType.DOUBLE_WITH_SOFA])
         self.occupancy_half_lux.insert(tk.END, room_occupancy[RoomType.HALF_LUX])
         self.occupancy_lux.insert(tk.END, room_occupancy[RoomType.LUX])
+
+        self.mode_change_text_box("disabled")
 
     def next_stage(self) -> None:
         """
