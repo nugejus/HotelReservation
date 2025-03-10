@@ -32,7 +32,7 @@ class Hotel:
 
         self.statsitics = Statistics(len(self.rooms))
 
-    def process_request(self, req: Request) -> Room:
+    def process_request(self, req: Request) -> Tuple[int, Room]:
         """
         Processes a single room request.
         It attempts to find an available room of the requested type and date range.
@@ -42,13 +42,13 @@ class Hotel:
         :return: The Room object if a room is available and checked in; otherwise, a dummy Room (with NOT_A_ROOM type).
         """
         roomType, check_in_date, check_out_date = req.get_request_info()
-        room = self.check_availability(roomType, check_in_date, check_out_date)
+        cost, room = self.check_availability(roomType, check_in_date, check_out_date)
         
-        if room:
-            return room.check_in(check_in_date, check_out_date)
+        if cost > -1:
+            return (cost, room.check_in(check_in_date, check_out_date))
         else:
             # Return a dummy room indicating no available room was found.
-            return Room(-1, RoomType.NOT_A_ROOM, -1)
+            return (-1, Room(-1, RoomType.NOT_A_ROOM, -1))
         
     def process_requests(self, requests: List[Request], today: int) -> List[Room]:
         """
@@ -68,7 +68,7 @@ class Hotel:
         return process_results
         
     # GETTERS
-    def check_availability(self, roomType: RoomType, check_in_date: int, check_out_date: int) -> Optional[Room]:
+    def check_availability(self, roomType: RoomType, check_in_date: int, check_out_date: int) -> Tuple[int, Room]:
         """
         Checks if there is an available room matching the requested room type and date range.
         If no room of the exact type is available, an upgrade to a higher room type is attempted.
@@ -81,15 +81,15 @@ class Hotel:
         # First, try to find a room of the exact requested type.
         for room in self.rooms:
             if room.get_type() == roomType and room.is_available(check_in_date, check_out_date):
-                return room
+                return (room.get_price(check_in_date, check_out_date), room)
         
         # If no room of the requested type is available, attempt to find an upgraded room type.
         for room in self.rooms:
             if room.get_type() > roomType and room.is_available(check_in_date, check_out_date):
-                return room
+                return (int(room.get_price(check_in_date, check_out_date)*0.7), room)
         
         # No available room found.
-        return None
+        return (-1, Room(-1, RoomType.NOT_A_ROOM, -1))
         
     def get_room_numbers(self) -> int:
         """

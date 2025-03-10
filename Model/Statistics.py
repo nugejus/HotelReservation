@@ -34,15 +34,14 @@ class Statistics:
         self.total_requests += len(request_results)
 
         # Process each request and its corresponding result.
-        for request, request_result in zip(requests, request_results):
+        for request, (cost, request_result) in zip(requests, request_results):
             check_in_date, check_out_date = request.get_time_info()
 
             # If the result represents a valid room (reservation successful),
             # count it as a successful reservation and add the price for the stay.
             if request_result.is_room():
                 self.succesed_requests += 1
-                cost = request_result.get_price(check_in_date, check_out_date)
-                self.profit += cost if request.get_type() == request_result.get_type() else cost *0.7 # 70% discount
+                self.profit += cost
 
         # Calculate the success rate as the percentage of successful requests.
         self.success_rate = (self.succesed_requests / self.total_requests) * 100
@@ -66,7 +65,10 @@ class Statistics:
         return {
             "avg_occupancy": self.avg_occupancy,
             "profit": self.profit,
-            "success_rate": self.success_rate
+            "success_rate": self.success_rate,
+            "total_request": self.total_requests,
+            "success_count": self.succesed_requests,
+            "fail_count": self.total_requests - self.succesed_requests
         }
 
     def goto_end(self, requests: List[Request], request_results: List[Room], remaining_occupancy:List[int]) -> None:

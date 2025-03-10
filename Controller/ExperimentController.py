@@ -134,7 +134,6 @@ class ExperimentController:
 
         :return: A string displaying the current simulation statistics.
         """
-        # return self.statistics.display_statistics()
         return self.hotel.get_statistics()
     
     def display_reservation_info(self) -> str:
@@ -147,15 +146,16 @@ class ExperimentController:
         """
         display = ""
         # Loop through each request and its corresponding result
-        for request, request_result in zip(self.requests, self.request_results):
+        for request, (cost, request_result) in zip(self.requests, self.request_results):
             if request.is_request():
                 room_type, (checkIn, checkOut) = request.get_room_name(), request.get_time_info()
                 if request_result.is_room():
                     # Successful reservation information
                     display += (
                         f"+/ Id : {request_result.get_id()} / Wanted : {room_type} / "
-                        f"Reserved : {request_result.get_type_name()} / In {checkIn} / Out {checkOut} \n"
+                        f"Reserved : {request_result.get_type_name()} / In {checkIn} / Out {checkOut} / Cost {cost}"
                     )
+                    display += "/ Discounted(70%)\n" if request.get_type() != request_result.get_type() else "\n"
                 else:
                     # Failed reservation information
                     display += f"-/ Wanted : {room_type} / In : {checkIn} / Out : {checkOut}\n"
