@@ -59,15 +59,25 @@ class ObservationWindow(tk.Toplevel, GUI):
         tk.Label(left_frame, text="Average occupancy:").grid(row=4, column=0, pady=2)
         tk.Label(left_frame, text="Profit:").grid(row=5, column=0, pady=2)
         tk.Label(left_frame, text="Successful request %:").grid(row=6, column=0, pady=2)
+        tk.Label(left_frame, text="Total request count:").grid(row=7, column=0, pady=2)
+        tk.Label(left_frame, text="Success count:").grid(row=8, column=0, pady=2)
+        tk.Label(left_frame, text="Fail count:").grid(row=9, column=0, pady=2)
 
         # Text widgets to display average occupancy, profit, and success rate
         self.avg_occupancy = tk.Text(left_frame, height=1, width=5)
         self.profit = tk.Text(left_frame, height=1, width=5)
         self.success_rate = tk.Text(left_frame, height=1, width=5)
+        self.total_request = tk.Text(left_frame, height=1, width=5)
+        self.success_count = tk.Text(left_frame, height=1, width=5)
+        self.fail_count = tk.Text(left_frame, height=1, width=5)
+
         self.avg_occupancy.grid(row=4, column=1, pady=2)
         self.profit.grid(row=5, column=1, pady=2)
         self.success_rate.grid(row=6, column=1, pady=2)
-
+        self.total_request.grid(row=7, column=1, pady=2)
+        self.success_count.grid(row=8, column=1, pady=2)
+        self.fail_count.grid(row=9, column=1, pady=2)
+        
         # ========= Right-side Information Area =========
         right_frame = tk.Frame(self, bd=2, relief=tk.GROOVE)
         right_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
@@ -151,6 +161,9 @@ class ObservationWindow(tk.Toplevel, GUI):
         self.occupancy_double_sofa.delete(1.0, tk.END)
         self.occupancy_half_lux.delete(1.0, tk.END)
         self.occupancy_lux.delete(1.0, tk.END)
+        self.total_request.delete(1.0, tk.END)
+        self.success_count.delete(1.0, tk.END)
+        self.fail_count.delete(1.0, tk.END)
 
     def end_experiment(self) -> None:
         """
@@ -175,6 +188,9 @@ class ObservationWindow(tk.Toplevel, GUI):
         self.occupancy_double_sofa.config(state = mode)
         self.occupancy_half_lux.config(state = mode)
         self.occupancy_lux.config(state = mode)
+        self.total_request.config(state = mode)
+        self.success_count.config(state = mode)
+        self.fail_count.config(state = mode)
 
     def update_screen(self) -> None:
         """
@@ -203,6 +219,9 @@ class ObservationWindow(tk.Toplevel, GUI):
         self.avg_occupancy.insert(tk.END, statistics["avg_occupancy"])
         self.profit.insert(tk.END, statistics["profit"])
         self.success_rate.insert(tk.END, statistics["success_rate"])
+        self.total_request.insert(tk.END, statistics["total_request"])
+        self.success_count.insert(tk.END, statistics["success_count"])
+        self.fail_count.insert(tk.END, statistics["fail_count"])
 
         # Update room occupancy information using data from the controller
         room_occupancy = self.controller.display_today_occupancy()
