@@ -29,8 +29,6 @@ class InitWindow(GUI):
         # --- Top Labels ---
         # Create a label for time-related input information.
         tk.Label(self, text="Time Info").grid(row=0, columnspan=2)
-        # Create a label for request number input with a hint of the valid range.
-        tk.Label(self, text="The number of requests(1-6)").grid(row=0, column=2, columnspan=2)
 
         # --- Input Fields for Time Parameters ---
         # Create label and entry for total experiment days with a valid range hint.
@@ -40,12 +38,14 @@ class InitWindow(GUI):
         self.entry_days.insert(0, "20")  # Default value
 
         # Create label and entry for steps per day with a valid range hint.
-        tk.Label(self, text="Hour per step(1-5):").grid(row=2, column=0, padx=10, pady=5, sticky="w")
+        tk.Label(self, text="Hours per step(1-5):").grid(row=2, column=0, padx=10, pady=5, sticky="w")
         self.entry_step = tk.Entry(self, width=5)
         self.entry_step.grid(row=2, column=1, padx=10, pady=5)
         self.entry_step.insert(0, "3")  # Default value
 
         # --- Input Fields for Request Number Range ---
+        # Create a label for request number input with a hint of the valid range.
+        tk.Label(self, text="The number of requests(1-6)").grid(row=0, column=2, columnspan=2)
         # Create labels for the minimum and maximum number of requests per step.
         tk.Label(self, text="Min").grid(row=1, column=2, padx=10, pady=5, sticky="w")
         tk.Label(self, text="Max").grid(row=2, column=2, padx=10, pady=5, sticky="w")

@@ -28,17 +28,17 @@ class ObservationWindow(tk.Toplevel, GUI):
 
         # ========= Top Label Section =========
         # Create a frame at the top for displaying initial experiment settings.
-        top_frame = tk.Frame(self)
-        top_frame.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
+        # top_frame = tk.Frame(self)
+        # top_frame.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
         # Retrieve initial experiment parameters (total days and hours per simulation step).
-        days, step = self.controller.get_init_info()
-        self.lbl_experiment_info = tk.Label(
-            top_frame,
-            text=f"Total days = {days} day, hour per step = {step} hours",
-            font=("Arial", 11, "bold")
-        )
-        self.lbl_experiment_info.pack(side=tk.LEFT)
+        # days, step = self.controller.get_init_info()
+        # self.lbl_experiment_info = tk.Label(
+        #     top_frame,
+        #     text=f"Total days = {days} day, hours per step = {step} hour",
+        #     font=("Arial", 11, "bold")
+        # )
+        # self.lbl_experiment_info.pack(side=tk.LEFT)
 
         # ========= Left-side Information Area =========
         # Create a frame on the left side with a grooved border.

@@ -190,7 +190,7 @@ class ExperimentController:
 
         :return: A tuple containing the current day (1-indexed) and the current hour formatted as a string.
         """
-        return f"{self.current_day + 1}", f"{self.current_hour}:00"
+        return f"{self.current_day + 1}/{self.days}", f"{self.current_hour}:00"
 
     def get_init_info(self) -> Tuple[int, int]:
         """
