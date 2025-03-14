@@ -147,20 +147,20 @@ class InitWindow(GUI):
         """
         try:
             # Validate days: must be a digit and between 12 and 30.
-            assert params["days"] and params["days"].isdigit() and 12 <= int(params["days"]) <= 30
+            assert params["days"] and params["days"].isdigit() and ExperimentController.MIN_DAYS <= int(params["days"]) <= ExperimentController.MAX_DAYS
             # Validate steps: must be a digit and between 1 and 6.
-            assert params["steps"] and params["steps"].isdigit() and 1 <= int(params["steps"]) <= 6
+            assert params["steps"] and params["steps"].isdigit() and ExperimentController.MIN_STEPS <= int(params["steps"]) <= ExperimentController.MAX_STEPS
             # Validate request range: both min_req and max_req must be digits and min_req < max_req, within 1 to 6.
             assert (
                 params["min_req"] and params["max_req"]
                 and params["min_req"].isdigit()
                 and params["max_req"].isdigit()
-                and 1 <= int(params["min_req"]) < int(params["max_req"]) <= 6
+                and ExperimentController.MIN_REQ <= int(params["min_req"]) < int(params["max_req"]) <= ExperimentController.MAX_REQ
             )
 
             # Validate each room number: must be a digit and between 4 and 6.
             for val in rooms:
-                assert val and val.isdigit() and 4 <= int(val) <= 6, f"room {val}"
+                assert val and val.isdigit() and ExperimentController.MIN_ROOM_NUM <= int(val) <= ExperimentController.MAX_ROOM_NUM, f"room {val}"
         except Exception:
             return False
         return True

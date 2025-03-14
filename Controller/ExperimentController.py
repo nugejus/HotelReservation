@@ -15,6 +15,12 @@ class ExperimentController:
     and updates statistics for each simulation step.
     """
 
+    MIN_DAYS, MAX_DAYS = 12, 30
+    MIN_STEPS, MAX_STEPS = 1, 6
+    MIN_REQ, MAX_REQ = 1, 6
+    MIN_ROOM_NUM, MAX_ROOM_NUM = 4, 6
+    MIN_DURATION_DAY, MAX_DURATION_DAY = 1, 5
+    ONE_DAY = 24
     def __init__(self) -> None:
         """
         Initializes an ExperimentController instance with default values.
@@ -65,7 +71,7 @@ class ExperimentController:
         # Randomly choose a valid room type from the available types.
         desired_room_type = random.choice(self.RoomTypes)
         # Determine a random duration of stay between 1 and 5 days.
-        duration_day = random.randint(1, 5)
+        duration_day = random.randint(ExperimentController.MIN_DURATION_DAY, ExperimentController.MAX_DURATION_DAY)
 
         # Randomly select a check-in date starting from the current day up to the end of simulation.
         check_in_date = self.current_day + random.randint(0, self.days - self.current_day)
@@ -114,9 +120,9 @@ class ExperimentController:
         # Increment the current hour by the simulation step interval.
         self.current_hour += self.hour_per_step
         # If the current hour is 24 or more, advance to the next day and adjust the hour.
-        if self.current_hour >= 24:
+        if self.current_hour >= ExperimentController.ONE_DAY:
             self.current_day += 1
-            self.current_hour -= 24
+            self.current_hour -= ExperimentController.ONE_DAY
 
         # If the simulation has reached the final day, stop the simulation.
         if self.current_day == self.days:
@@ -208,7 +214,7 @@ class ExperimentController:
         updates the occupancy, and sets the simulation time to the final day at 23:00 hours.
         """
         # Calculate the number of steps per day.
-        steps_per_day = 24 // self.hour_per_step
+        steps_per_day = ExperimentController.ONE_DAY // self.hour_per_step
         # Calculate the total number of simulation steps.
         total_steps = self.days * steps_per_day
         # Calculate the number of steps that have been completed so far.
@@ -226,4 +232,4 @@ class ExperimentController:
 
         # Set simulation time to the final day at 23:00.
         self.current_day = self.days - 1
-        self.current_hour = 23
+        self.current_hour = ExperimentController.ONE_DAY - 1
